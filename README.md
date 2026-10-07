@@ -23,6 +23,10 @@ Only these architectures are built. Windows setup installs WebView2 if needed, w
 
 The beta is not signed by a trusted publisher or notarized by Apple. macOS may offer **Open Anyway** in System Settings > Privacy & Security after the first launch attempt. Windows SmartScreen may offer **More info > Run anyway**. Only allow a download you obtained from this repository. Each release includes `SHA256SUMS.txt` to verify the downloaded files.
 
+### macOS says “Apple could not verify Folio”
+
+Click **Done**, then open **System Settings > Privacy & Security**, scroll to Security, and click **Open Anyway** for Folio. Confirm with **Open**. This applies to the downloaded 0.1.0 beta, including copies named `Folio-2.app`. See the [macOS installation guide](docs/macos-installation.md) for the full steps and signing setup.
+
 ## What you can do
 
 | Feature | Details |
@@ -123,7 +127,7 @@ Keep the version aligned across `package.json`, `package-lock.json`, `Cargo.toml
 
 The workflow checks versions, tests the frontend, runs native tests and packages exactly three targets: `aarch64-apple-darwin`, `x86_64-pc-windows-msvc` and `x86_64-unknown-linux-gnu`. Publication waits for every platform build. Releases are marked as prereleases and include SHA-256 checksums; existing releases are not overwritten.
 
-macOS apps are ad-hoc signed during packaging. Trusted publisher signing and notarization are not configured.
+macOS packaging supports Developer ID signing and notarization when all required Apple secrets are configured; otherwise it uses ad-hoc signing. See [macOS signing setup](docs/macos-installation.md#removing-this-warning-in-future-releases). The published 0.1.0 beta is ad-hoc signed and not notarized.
 
 With an authenticated GitHub CLI, `npm run github:metadata` updates the repository About description, homepage and topics from `package.json`.
 

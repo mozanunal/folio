@@ -1,6 +1,6 @@
 import { copyFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 
@@ -28,7 +28,14 @@ if (platform === 'macos-arm64') {
   const app = join(bundle, 'macos/Folio.app');
   const architectures = execFileSync('lipo', ['-archs', join(app, 'Contents/MacOS/folio')], { encoding: 'utf8' }).trim();
   assert.equal(architectures, 'arm64');
-  execFileSync('codesign', ['--force', '--deep', '--sign', '-', app], { stdio: 'inherit' });
+  const signature = spawnSync('codesign', ['--display', '--verbose=4', app], { encoding: 'utf8' });
+  assert.equal(signature.status, 0, 'Cannot inspect the macOS app signature');
+  if (signature.stderr.includes('Authority=Developer ID Application:')) {
+    execFileSync('xcrun', ['stapler', 'validate', app], { stdio: 'inherit' });
+    execFileSync('spctl', ['--assess', '--type', 'execute', '--verbose=2', app], { stdio: 'inherit' });
+  } else {
+    execFileSync('codesign', ['--force', '--deep', '--sign', '-', app], { stdio: 'inherit' });
+  }
   execFileSync('codesign', ['--verify', '--deep', '--strict', app], { stdio: 'inherit' });
   execFileSync('ditto', ['-c', '-k', '--sequesterRsrc', '--keepParent', app, asset('.zip')]);
 } else if (platform === 'windows-x64') {

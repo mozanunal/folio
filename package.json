@@ -9,7 +9,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "tauri": "node scripts/tauri.mjs",
     "test": "npm run test:core && vitest run",
-    "test:core": "node --test src/files.node-test.ts",
+    "test:core": "node --test src/files.node-test.ts scripts/release-signing.node-test.mjs",
     "github:metadata": "node scripts/github-metadata.mjs"
   },
   "dependencies": {
