@@ -1,7 +1,10 @@
 [package]
 name = "folio"
 version = "0.1.0"
-description = "A focused Markdown editor"
+description = "A focused WYSIWYG Markdown editor with math, diagrams and local files"
+repository = "https://github.com/mozanunal/folio"
+homepage = "https://github.com/mozanunal/folio#readme"
+keywords = ["markdown", "wysiwyg", "editor", "tauri", "latex"]
 edition = "2021"
 license = "MIT"
 

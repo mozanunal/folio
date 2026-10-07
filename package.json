@@ -9,7 +9,8 @@
     "preview": "vite preview --host 127.0.0.1",
     "tauri": "node scripts/tauri.mjs",
     "test": "npm run test:core && vitest run",
-    "test:core": "node --test src/files.node-test.ts"
+    "test:core": "node --test src/files.node-test.ts",
+    "github:metadata": "node scripts/github-metadata.mjs"
   },
   "dependencies": {
     "@tiptap/core": "^3.0.0",
@@ -46,5 +47,30 @@
     "mermaid": {
       "katex": "$katex"
     }
-  }
+  },
+  "description": "A focused WYSIWYG Markdown editor with LaTeX, Mermaid, SVG, tabs and local file/folder support. Built with Tauri and Rust.",
+  "license": "MIT",
+  "homepage": "https://github.com/mozanunal/folio#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozanunal/folio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mozanunal/folio/issues"
+  },
+  "keywords": [
+    "markdown",
+    "markdown-editor",
+    "wysiwyg",
+    "gfm",
+    "latex",
+    "katex",
+    "mermaid",
+    "svg",
+    "tauri",
+    "rust",
+    "cross-platform",
+    "desktop",
+    "offline"
+  ]
 }

@@ -46,6 +46,7 @@
       "icons/icon.png",
       "icons/icon.ico",
       "icons/icon.icns"
-    ]
+    ],
+    "longDescription": "Folio is a local WYSIWYG Markdown editor with Write, Source and Read modes. Open individual files or folders, work in tabs, and render GFM tables, task lists, LaTeX formulas, Mermaid diagrams, SVG images and highlighted code. Built with Rust and Tauri."
   }
 }

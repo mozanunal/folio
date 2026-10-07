@@ -13,7 +13,7 @@ const desktop = isTauri()
 const app = document.querySelector<HTMLDivElement>('#app')!
 app.innerHTML = `
   <aside class="sidebar">
-    <div class="brand"><span class="brand-mark">f.</span><strong>folio</strong><span class="build-tag">EARLY BUILD</span></div>
+    <div class="brand"><span class="brand-mark">f.</span><strong>folio</strong><span class="build-tag">BETA</span></div>
     <div class="workspace-actions"><button data-action="open-file">Open file <kbd>⌘O</kbd></button><button data-action="open-folder">Open folder <span>↗</span></button></div>
     <div class="sidebar-caption"><span id="workspace-name">YOUR DESK</span><button data-action="refresh" title="Refresh folder" aria-label="Refresh folder">↻</button></div>
     <nav id="file-tree" aria-label="Workspace files"><button class="file-row selected" data-action="sample"><span>▤</span> Welcome.md</button></nav>

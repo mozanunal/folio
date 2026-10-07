@@ -1,6 +1,8 @@
-# Prototype status
+# Beta status
 
 The project is initialized locally as Folio in `markdown-studio`.
+
+Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64, Windows x64 and Linux x64, and publishes a prerelease after all tests and packaging jobs pass. Published artifacts and real Windows/Linux desktop behavior must be checked separately.
 
 ## Implemented in source
 
@@ -23,7 +25,7 @@ Passed: 41 frontend tests using Node and Vitest, including typing conversions, t
 
 The installed dependency tree uses Vitest 4.1.11 and KaTeX 0.18.10, with Mermaid sharing KaTeX. npm and Cargo lockfiles are tracked. esbuild's installed setup script is approved and optional fsevents installation scripts are disabled. A fresh online npm audit remains unverified in this session.
 
-The macOS release build and app bundling pass. A 6.9 MiB standalone app is installed at ~/Downloads/Folio.app, locally signed, signature-verified, launched and inspected through the native accessibility tree. Finder Open With was checked in a separately signed test copy: the requested file replaces Welcome at cold start, a second file opens as another tab in the running app, and the red close button exits a clean window. Unsaved tab and window prompts have automated coverage using mocked native dialogs and commands. Windows/Linux launch, distribution packaging, full visual inspection and startup timing remain unverified. This agent session cannot bind the development server port or resolve GitHub and package registries.
+The macOS release build and app bundling pass. The explicit aarch64-apple-darwin beta build also passes; its ARM64-only architecture and ad-hoc signature are verified, and its release ZIP passes archive integrity checks. Windows/Linux installer packaging awaits GitHub Actions. A 6.9 MiB standalone app is installed at ~/Downloads/Folio.app, locally signed, signature-verified, launched and inspected through the native accessibility tree. Finder Open With was checked in a separately signed test copy: the requested file replaces Welcome at cold start, a second file opens as another tab in the running app, and the red close button exits a clean window. Unsaved tab and window prompts have automated coverage using mocked native dialogs and commands. Windows/Linux launch, distribution packaging, full visual inspection and startup timing remain unverified. This agent session cannot bind the development server port or resolve GitHub and package registries through the terminal. The GitHub connector can read the repository but rejects contents writes with HTTP 403. Publication requires a push from an environment with GitHub write access.
 
 ## Run next
 
