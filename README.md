@@ -25,7 +25,7 @@ The beta is not signed by a trusted publisher or notarized by Apple. macOS may o
 
 ### macOS says “Apple could not verify Folio”
 
-Click **Done**, then open **System Settings > Privacy & Security**, scroll to Security, and click **Open Anyway** for Folio. Confirm with **Open**. This applies to the downloaded 0.1.0 beta, including copies named `Folio-2.app`. See the [macOS installation guide](docs/macos-installation.md) for the full steps and signing setup.
+Click **Done**, then open **System Settings > Privacy & Security**, scroll to Security, and click **Open Anyway** for Folio. Confirm with **Open**. This applies to the downloaded 0.1.0 beta. See the [macOS installation guide](docs/macos-installation.md) for the full steps and signing setup.
 
 ## What you can do
 

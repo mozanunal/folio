@@ -12,7 +12,7 @@ Only continue with a copy downloaded from [Folio's GitHub releases](https://gith
 4. Scroll to the Security section and find the message about Folio. Click **Open Anyway**.
 5. Authenticate if prompted, then click **Open** in the confirmation dialog.
 
-macOS remembers the exception for that app. If Finder extracted it as `Folio-2.app`, the warning and settings will use that name. A managed Mac may restrict this option.
+macOS remembers the exception for that app. A managed Mac may restrict this option.
 
 This follows [Apple's instructions for opening an app that has not been notarized](https://support.apple.com/en-us/102445). It does not require disabling Gatekeeper or removing quarantine attributes through Terminal.
 
