@@ -2,7 +2,7 @@ import { EditorState } from '@tiptap/pm/state'
 import { Fragment } from '@tiptap/pm/model'
 import { invoke, isTauri } from '@tauri-apps/api/core'
 import { createEditor } from './editor'
-import { basename, type DocumentFile, type DirectoryEntry } from './files'
+import { basename, headingSlug, parseDocumentLink, type DocumentFile, type DirectoryEntry } from './files'
 import { sample } from './sample'
 import { attachTableControls } from './table-controls'
 import { attachSourceHighlighting } from './source-highlighting'
@@ -295,6 +295,44 @@ async function openFile() {
     picker.click()
   }
 }
+
+async function followDocumentLink(href: string) {
+  const link = parseDocumentLink(href)
+  if (!link) return
+  if (link.file) {
+    if (!desktop) throw new Error('Open linked files in the desktop app.')
+    if (!path) throw new Error('Save this document first so relative links have a base folder.')
+    const document = await invoke<DocumentFile>('open_linked_document', { origin: path, relativePath: link.file })
+      .catch(error => { throw new Error(`Could not open ${link.file}: ${String(error)}`) })
+    const existing = tabs.some(tab => tab.path === document.path)
+    const mode = viewMode
+    showDocument(document)
+    if (!existing && mode === 'read') setMode('read')
+  }
+  if (link.fragment) {
+    if (viewMode === 'source') setMode('read')
+    const used = new Set<string>()
+    const heading = [...get('editor').querySelectorAll<HTMLElement>('h1,h2,h3,h4,h5,h6')].find(element => {
+      const base = headingSlug(element.textContent || '')
+      let slug = base
+      let index = 1
+      while (used.has(slug)) slug = `${base}-${index++}`
+      used.add(slug)
+      return slug === link.fragment || element.id === link.fragment
+    })
+    if (!heading) throw new Error(`Heading not found: ${link.fragment}`)
+    heading.scrollIntoView?.({ block: 'start' })
+  }
+}
+
+get('editor').addEventListener('click', event => {
+  const anchor = (event.target as Element).closest<HTMLAnchorElement>('a[href]')
+  if (!anchor) return
+  const href = anchor.getAttribute('href') || ''
+  if (!parseDocumentLink(href)) return
+  event.preventDefault()
+  void run(() => followDocumentLink(href))
+}, true)
 
 async function renderDirectory(directory: string, container: HTMLElement) {
   const entries = await invoke<DirectoryEntry[]>('list_directory', { path: directory })

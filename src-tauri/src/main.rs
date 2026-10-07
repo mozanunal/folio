@@ -164,6 +164,17 @@ fn read_document(path: String, access: State<'_, WorkspaceAccess>) -> Result<Doc
 }
 
 #[tauri::command]
+fn open_linked_document(
+    app: tauri::AppHandle,
+    access: State<'_, WorkspaceAccess>,
+    origin: String,
+    relative_path: String,
+) -> Result<Document, String> {
+    let path = access.linked_document(Path::new(&origin), Path::new(&relative_path))?;
+    open_document(&app, &access, path)
+}
+
+#[tauri::command]
 async fn save_document(
     app: tauri::AppHandle,
     access: State<'_, WorkspaceAccess>,
@@ -221,6 +232,7 @@ fn main() {
             choose_directory,
             list_directory,
             read_document,
+            open_linked_document,
             save_document,
             take_open_documents
         ])

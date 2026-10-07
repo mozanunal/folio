@@ -38,7 +38,7 @@ Click **Done**, then open **System Settings > Privacy & Security**, scroll to Se
 | Images and SVG | Display raster images and SVGs, including relative local images within the opened document's directory. |
 | Mermaid diagrams | Render diagrams on demand, follow the current theme, and reveal the source when editing. |
 | Code blocks | Syntax highlighting and a copy button. |
-| Files and folders | Open a single document or browse a folder through the sidebar. |
+| Files and folders | Open a single document or browse a folder through the sidebar. Follow relative Markdown links in document tabs. |
 | Document tabs | Keep separate edits, undo history, view modes and scroll positions during the session. |
 | Appearance | Light and dark themes, plus a remembered centered or full width layout. |
 | Saving | Save and Save As, unsaved-change prompts, and checks for external changes before overwriting. |
@@ -58,6 +58,18 @@ In **Write** mode:
 - Use **↔** beside New to toggle full width.
 
 Try [the sample document](examples/welcome.md) for tables, formulas, code and diagrams.
+
+### Follow links between documents
+
+Click a relative Markdown link in Write or Read mode to open the target in a tab. Paths resolve from the current document's folder, including parent folders and encoded spaces. Already open documents keep their unsaved edits. New tabs opened from Read mode stay read-only.
+
+```markdown
+[Training Patterns](development/training-patterns.md)
+[CT Reconstruction](../ct-reconstruction.md#filtered-back-projection)
+[Development](#development)
+```
+
+Heading fragments jump to matching headings, including repeated headings with `-1`, `-2` suffixes. Linked files must be Markdown or text documents (`.md`, `.markdown`, `.txt`). Save a new document before following relative file links. File navigation is available in the desktop app; missing files and headings display an error without replacing the current document.
 
 ### Shortcuts
 

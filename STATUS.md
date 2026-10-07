@@ -15,13 +15,14 @@ Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64,
 - Source syntax highlighting and task checkboxes excluded from the Tab focus order.
 - Native file/folder dialogs, a lazy directory tree, explicit saving and Save As.
 - Queued macOS file-open events, startup file arguments and the window-destroy capability required by the native close handler.
-- File access restricted to selected files and directory roots.
+- File access restricted to selected files, directory roots and explicitly followed Markdown/text links from an authorized document.
+- Relative Markdown links open or select tabs, preserve unsaved edits and Read mode, and navigate heading fragments.
 - Save conflict detection, replacement through a temporary file, and unsaved-change prompts.
 - An example document and regression tests for Markdown import/serialization.
 
 ## Verification
 
-Passed: 45 JavaScript/TypeScript tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. All three Cargo tests pass, covering file access, save conflicts and startup file-open request queuing.
+Passed: 47 JavaScript/TypeScript tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. All four Cargo tests pass, covering file access, save conflicts, startup file-open request queuing and resolving linked documents from authorized origins.
 
 The installed dependency tree uses Vitest 4.1.11 and KaTeX 0.18.10, with Mermaid sharing KaTeX. npm and Cargo lockfiles are tracked. esbuild's installed setup script is approved and optional fsevents installation scripts are disabled. A fresh online npm audit remains unverified in this session.
 

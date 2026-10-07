@@ -26,3 +26,19 @@ export function resolveImagePath(source: string, documentPath: string | null): s
 export function safeExternalLink(url: string): boolean {
   return /^(https?:|mailto:)/i.test(url)
 }
+
+export function parseDocumentLink(href: string): { file: string; fragment: string } | null {
+  const hash = href.indexOf('#')
+  try {
+    const file = decodeURIComponent((hash < 0 ? href : href.slice(0, hash)).split('?')[0])
+    const fragment = hash < 0 ? '' : decodeURIComponent(href.slice(hash + 1))
+    if (/^[\\/]|^[a-z][a-z\d+.-]*:|[\u0000-\u001f]/i.test(file)) return null
+    if (file && !/\.(md|markdown|txt)$/i.test(file)) return null
+    if (!file && !fragment) return null
+    return { file, fragment }
+  } catch { return null }
+}
+
+export function headingSlug(text: string): string {
+  return text.toLowerCase().replace(/[^\p{L}\p{N}\p{M}_\s-]/gu, '').replace(/\s/g, '-')
+}
