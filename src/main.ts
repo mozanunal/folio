@@ -19,7 +19,7 @@ app.innerHTML = `
     <div class="sidebar-bottom"><span class="status-light"></span> Local files. Clear thoughts.<button data-action="theme" title="Toggle light or dark appearance" aria-label="Toggle theme">◐</button></div>
   </aside>
   <main>
-    <header class="titlebar"><button data-action="sidebar" class="icon-button" title="Toggle sidebar" aria-label="Toggle sidebar">☷</button><div class="document-heading"><span id="document-name">Welcome.md</span><span id="document-location">A place to begin</span></div><span id="dirty-indicator" aria-label="Unsaved changes" hidden>●</span><div class="title-actions"><button data-action="new">New</button><button data-action="save" class="save-button">Save <kbd>⌘S</kbd></button></div></header>
+    <header class="titlebar"><button data-action="sidebar" class="icon-button" title="Toggle sidebar" aria-label="Toggle sidebar">☷</button><div class="document-heading"><span id="document-name">Welcome.md</span><span id="document-location">A place to begin</span></div><span id="dirty-indicator" aria-label="Unsaved changes" hidden>●</span><div class="title-actions"><button data-action="width" class="width-toggle" title="Use full width" aria-label="Full width" aria-pressed="false">↔</button><button data-action="new">New</button><button data-action="save" class="save-button">Save <kbd>⌘S</kbd></button></div></header>
     <div class="document-tabs-bar"><div id="document-tabs" class="document-tabs" role="tablist" aria-label="Open documents"></div><button data-action="new" class="new-tab" title="New document" aria-label="New document">+</button></div>
     <div class="toolbar" role="toolbar" aria-label="Document formatting"><div class="formatting"><button data-format="heading" title="Heading">H₁</button><button data-format="bold" title="Bold"><b>B</b></button><button data-format="italic" title="Italic"><i>I</i></button><button data-format="strike" title="Strikethrough"><s>S</s></button><span class="toolbar-divider"></span><button data-format="list" title="Bullet list">≡</button><button data-format="task" title="Task list">☑</button><button data-format="quote" title="Blockquote">❞</button><button data-format="code" title="Code block">&lt;/&gt;</button><span class="toolbar-divider"></span><button data-format="table" title="Insert table">▦</button><button data-format="math" title="Insert formula">∑</button><button data-format="image" title="Insert image">▧</button><button data-format="mermaid" title="Insert Mermaid diagram">⋈</button></div><div class="mode-switch" aria-label="Editing mode"><button data-action="visual" class="active">Write</button><button data-action="source">Source</button><button data-action="read">Read</button></div></div>
     <div id="table-controls" class="table-controls" role="toolbar" aria-label="Table editing" hidden></div>
@@ -407,6 +407,13 @@ async function run(action: () => Promise<unknown> | unknown) {
   finally { busy = false }
 }
 
+function setFullWidth(full: boolean) {
+  app.classList.toggle('full-width', full)
+  const button = document.querySelector<HTMLButtonElement>('[data-action="width"]')!
+  button.setAttribute('aria-pressed', String(full))
+  button.title = full ? 'Use reading width' : 'Use full width'
+}
+
 const actions: Record<string, () => Promise<unknown> | unknown> = {
   'open-file': openFile,
   'open-folder': openFolder,
@@ -415,6 +422,11 @@ const actions: Record<string, () => Promise<unknown> | unknown> = {
   sample: () => showDocument({ path: 'Welcome.md', content: sample }, false, true),
   refresh: () => workspace && renderDirectory(workspace, get('file-tree')),
   sidebar: () => app.classList.toggle('sidebar-hidden'),
+  width: () => {
+    const full = !app.classList.contains('full-width')
+    setFullWidth(full)
+    localStorage.setItem('folio-width', full ? 'full' : 'reading')
+  },
   theme: () => {
     const dark = document.documentElement.classList.toggle('dark')
     localStorage.setItem('folio-theme', dark ? 'dark' : 'light')
@@ -463,6 +475,7 @@ window.addEventListener('beforeunload', event => {
   if (!desktop && (dirty || tabs.some(tab => tab.dirty))) event.preventDefault()
 })
 
+setFullWidth(localStorage.getItem('folio-width') === 'full')
 if (localStorage.getItem('folio-theme') === 'dark') document.documentElement.classList.add('dark')
 if (desktop) {
   void import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {

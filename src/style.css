@@ -31,3 +31,7 @@
 .document-tab .close-tab{font-size:16px;line-height:1;width:23px;height:23px;padding:0;margin-right:7px;flex-shrink:0;opacity:0}
 .document-tab:hover .close-tab,.document-tab:focus-within .close-tab,.document-tab.active .close-tab{opacity:1}
 .new-tab{font-size:21px;width:42px;flex-shrink:0;color:var(--muted);border-radius:0}
+.title-actions .width-toggle{font-size:20px;line-height:1;padding:6px 10px}
+.width-toggle[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.full-width .document-scroll{padding-left:clamp(22px,3vw,42px);padding-right:clamp(22px,3vw,42px)}
+.full-width #editor,.full-width #source,.full-width .document-overline{max-width:none}

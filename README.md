@@ -28,6 +28,8 @@ In Write mode, type `$m/a$` to render inline math when the closing dollar sign i
 
 Type `$$A/B$$` on its own line for display math. To type a table, enter `| One | Two |`, press Enter, and type `| --- | --- |`. Completing the separator creates the table and places the cursor in its first body cell. Separators without outer pipes convert on Enter.
 
+The ↔ button beside New switches between centered reading width and full width in every mode. This preference is remembered between sessions.
+
 Read mode renders the current document without allowing edits. Code copying and document scrolling remain available.
 
 Open files and create documents in separate tabs. Each tab keeps its unsaved changes, editing history, mode and scroll position. Use the + button or Cmd/Ctrl+N for a new tab, Cmd/Ctrl+W to close it, and Ctrl+Tab or Ctrl+Shift+Tab to switch tabs. Closing a modified document prompts to save or discard. Tabs are kept in memory during the current session.
