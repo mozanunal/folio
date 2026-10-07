@@ -64,6 +64,7 @@ let activeTabId = 0
 let tabSignature = ''
 let workspace: string | null = null
 let busy = false
+let externalOpensPending = false
 let statusTimer: ReturnType<typeof setTimeout>
 
 function message(text: string, error = false) {
@@ -409,7 +410,31 @@ async function run(action: () => Promise<unknown> | unknown) {
   if (busy) return
   busy = true
   try { await action() } catch (error) { message(String(error), true) }
-  finally { busy = false }
+  finally {
+    busy = false
+    if (externalOpensPending) void openRequestedDocuments()
+  }
+}
+
+async function openRequestedDocuments() {
+  externalOpensPending = true
+  if (busy) return
+  await run(async () => {
+    externalOpensPending = false
+    const requests = await invoke<Array<{ Ok: DocumentFile } | { Err: string }>>('take_open_documents')
+    const replaceWelcome = tabs.length === 1 && tabs[0].welcome && !dirty && !tabs[0].dirty
+    let opened = false
+    for (const request of requests) {
+      if ('Err' in request) { message(request.Err, true); continue }
+      showDocument(request.Ok)
+      opened = true
+    }
+    if (replaceWelcome && opened) {
+      const welcome = tabs.findIndex(tab => tab.welcome)
+      if (welcome >= 0) tabs.splice(welcome, 1)
+      renderTabs()
+    }
+  })
 }
 
 function setFullWidth(full: boolean) {
@@ -483,6 +508,10 @@ window.addEventListener('beforeunload', event => {
 setFullWidth(localStorage.getItem('folio-width') === 'full')
 if (localStorage.getItem('folio-theme') === 'dark') document.documentElement.classList.add('dark')
 if (desktop) {
+  void import('@tauri-apps/api/event').then(async ({ listen }) => {
+    await listen('documents-opened', () => { void openRequestedDocuments() })
+    await openRequestedDocuments()
+  }).catch(error => message(String(error), true))
   void import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {
     await getCurrentWindow().onCloseRequested(async event => {
       if (!dirty && !tabs.some(tab => tab.dirty)) return

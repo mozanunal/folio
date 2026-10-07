@@ -3,10 +3,11 @@ import { expect, it, vi } from 'vitest'
 import type { Editor } from '@tiptap/core'
 
 const native = vi.hoisted(() => ({
-  invoke: vi.fn(), close: vi.fn(), closeRequested: undefined as undefined | ((event: { preventDefault: () => void }) => Promise<void>),
+  invoke: vi.fn().mockResolvedValue([]), close: vi.fn(), closeRequested: undefined as undefined | ((event: { preventDefault: () => void }) => Promise<void>),
   editor: undefined as Editor | undefined,
 }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: native.invoke, isTauri: () => true, convertFileSrc: (path: string) => path }))
+vi.mock('@tauri-apps/api/event', () => ({ listen: async () => () => {} }))
 vi.mock('@tauri-apps/api/window', () => ({ getCurrentWindow: () => ({
   close: native.close,
   onCloseRequested: async (callback: typeof native.closeRequested) => { native.closeRequested = callback },

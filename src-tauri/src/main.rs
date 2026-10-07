@@ -5,9 +5,11 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
+mod opening;
 mod storage;
+use opening::PendingOpens;
 use storage::{save_checked, WorkspaceAccess};
-use tauri::{Manager, State};
+use tauri::{Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
 
 #[derive(Serialize)]
@@ -41,6 +43,35 @@ fn allow_images(app: &tauri::AppHandle, path: &Path) -> Result<(), String> {
             .map_err(|e| e.to_string())?;
     }
     Ok(())
+}
+
+fn open_document(
+    app: &tauri::AppHandle,
+    access: &WorkspaceAccess,
+    path: PathBuf,
+) -> Result<Document, String> {
+    let path = path.canonicalize().map_err(|error| error.to_string())?;
+    let document = load_document(path.clone())?;
+    access
+        .files
+        .lock()
+        .map_err(|error| error.to_string())?
+        .insert(path.clone());
+    allow_images(app, &path)?;
+    Ok(document)
+}
+
+#[tauri::command]
+fn take_open_documents(
+    app: tauri::AppHandle,
+    access: State<'_, WorkspaceAccess>,
+    pending: State<'_, PendingOpens>,
+) -> Result<Vec<Result<Document, String>>, String> {
+    Ok(pending
+        .take()?
+        .into_iter()
+        .map(|path| open_document(&app, &access, path))
+        .collect())
 }
 
 #[tauri::command]
@@ -173,16 +204,39 @@ async fn save_document(
 }
 
 fn main() {
+    let pending = PendingOpens::default();
+    let arguments = std::env::args_os()
+        .skip(1)
+        .map(PathBuf::from)
+        .filter(|path| path.is_file());
+    pending
+        .enqueue(arguments)
+        .expect("could not queue launch documents");
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(WorkspaceAccess::default())
+        .manage(pending)
         .invoke_handler(tauri::generate_handler![
             choose_file,
             choose_directory,
             list_directory,
             read_document,
-            save_document
+            save_document,
+            take_open_documents
         ])
-        .run(tauri::generate_context!())
-        .expect("could not start Folio");
+        .build(tauri::generate_context!())
+        .expect("could not start Folio")
+        .run(|app, event| {
+            #[cfg(any(target_os = "macos", target_os = "ios"))]
+            if let tauri::RunEvent::Opened { urls } = event {
+                let paths = urls.into_iter().filter_map(|url| url.to_file_path().ok());
+                if app.state::<PendingOpens>().enqueue(paths).is_ok() {
+                    let _ = app.emit("documents-opened", ());
+                }
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }
+            }
+        });
 }

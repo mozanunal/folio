@@ -34,13 +34,13 @@ The ↔ button beside New switches between centered reading width and full width
 
 Read mode renders the current document without allowing edits. Code copying and document scrolling remain available.
 
-Open files and create documents in separate tabs. Each tab keeps its unsaved changes, editing history, mode and scroll position. Use the + button or Cmd/Ctrl+N for a new tab, Cmd/Ctrl+W to close it, and Ctrl+Tab or Ctrl+Shift+Tab to switch tabs. Closing a modified document prompts to save or discard. Tabs are kept in memory during the current session.
+Open files and create documents in separate tabs. Each tab keeps its unsaved changes, editing history, mode and scroll position. Use the + button or Cmd/Ctrl+N for a new tab, Cmd/Ctrl+W to close it, and Ctrl+Tab or Ctrl+Shift+Tab to switch tabs. Closing a modified document prompts to save or discard. Tabs are kept in memory during the current session. Opening a Markdown file through Finder selects its existing tab or opens a new one, preserving other unsaved documents.
 
 In Write mode, click inside a table to show its row and column controls. Insert rows above or below, insert columns left or right, remove the selected row or column, or delete the table. Tab moves between cells and adds a row at the end. Table edits support undo.
 
 Visual Markdown editing, GFM tables and tasks, inline and display math, images including SVG, Mermaid code blocks, highlighted code, individual documents, and a directory sidebar. Math and Mermaid dependencies are bundled for offline use. Mermaid loads on demand.
 
-This is an early prototype. Do not use it as the only copy of an important document. Markdown serialization currently normalizes formatting after edits; exact preservation of untouched source, complete GFM conformance, file watching, directory search, clipboard image import, OS open-event handling and platform performance measurements remain milestones. Saving checks for external changes before overwriting. Platform file associations are declared but end-to-end Finder/Explorer integration still needs validation.
+This is an early prototype. Do not use it as the only copy of an important document. Markdown serialization currently normalizes formatting after edits; exact preservation of untouched source, complete GFM conformance, file watching, directory search, clipboard image import and platform performance measurements remain milestones. Saving checks for external changes before overwriting. Finder Open With is verified on macOS both at launch and while Folio is running. Explorer/Linux integration still needs validation.
 
 ## Performance approach
 
