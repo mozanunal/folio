@@ -1,0 +1,41 @@
+{
+  "name": "folio-markdown",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "tauri": "tauri",
+    "test": "npm run test:core && vitest run",
+    "test:core": "node --test src/files.node-test.ts"
+  },
+  "dependencies": {
+    "@tiptap/core": "^3.0.0",
+    "@tiptap/starter-kit": "^3.0.0",
+    "@tiptap/markdown": "^3.0.0",
+    "@tiptap/extension-table": "^3.0.0",
+    "@tiptap/extension-task-list": "^3.0.0",
+    "@tiptap/extension-task-item": "^3.0.0",
+    "@tiptap/extension-image": "^3.0.0",
+    "@tiptap/extension-mathematics": "^3.0.0",
+    "@tiptap/extension-code-block-lowlight": "^3.0.0",
+    "@tauri-apps/api": "^2.0.0",
+    "katex": "^0.16.22",
+    "lowlight": "^3.3.0",
+    "highlight.js": "^11.11.1",
+    "mermaid": "^11.12.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.0",
+    "jsdom": "^26.1.0",
+    "@types/katex": "^0.16.7",
+    "@tauri-apps/cli": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
