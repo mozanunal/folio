@@ -15,6 +15,8 @@ Browser development: `npm run dev`. The browser supports sample documents and op
 
 The desktop launcher checks for Cargo on PATH and falls back to the active rustup toolchain when needed.
 
+A standalone macOS release can be built with `npm run tauri -- build --bundles app`. The app is generated in `src-tauri/target/release/bundle/macos/Folio.app` and runs without the development server. The local installation for this machine is `~/Downloads/Folio.app`.
+
 ```sh
 npm run build
 npm test
@@ -24,7 +26,7 @@ npm run tauri build
 
 ## First milestone
 
-In Write mode, type `$m/a$` to render inline math when the closing dollar sign is entered. Click a rendered formula to edit it, or use the ∑ toolbar button. Source mode also supports display equations between `$$` delimiters.
+In Write mode, type `$m/a$` to render inline math when the closing dollar sign is entered. Click a rendered formula to edit it, or use the ∑ toolbar button. Source mode highlights Markdown, formulas and supported fenced code languages, and also supports display equations between `$$` delimiters.
 
 Type `$$A/B$$` on its own line for display math. To type a table, enter `| One | Two |`, press Enter, and type `| --- | --- |`. Completing the separator creates the table and places the cursor in its first body cell. Separators without outer pipes convert on Enter.
 

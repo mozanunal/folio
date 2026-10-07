@@ -26,6 +26,7 @@ it('renders source in Read mode, prevents edits, and restores Write mode', async
   const format = document.querySelector<HTMLButtonElement>('[data-format="bold"]')!
   expect(format.disabled).toBe(true)
   const checkbox = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!
+  expect(checkbox.tabIndex).toBe(-1)
   const task = checkbox.closest('li')!
   expect(task.dataset.type).toBe('taskItem')
   expect(task.querySelector(':scope > div')?.textContent).toBe('Task')

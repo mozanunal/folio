@@ -19,6 +19,17 @@ import { resolveImagePath } from './files'
 import { MarkdownTyping } from './markdown-typing'
 
 const lowlight = createLowlight({ javascript, typescript, python, rust, json, bash })
+const KeyboardTaskItem = TaskItem.extend({
+  addNodeView() {
+    const renderTask = this.parent!()!
+    return options => {
+      const view = renderTask(options)
+      const checkbox = (view.dom as HTMLElement).querySelector<HTMLInputElement>('input[type="checkbox"]')
+      if (checkbox) checkbox.tabIndex = -1
+      return view
+    }
+  },
+})
 const MarkdownInlineMath = InlineMath.extend({
   addInputRules() {
     return [new InputRule({
@@ -234,7 +245,7 @@ export function createEditor(element: HTMLElement, content: string, options: Edi
       MarkdownTyping,
       TableKit.configure({ table: { resizable: true } }),
       TaskList,
-      TaskItem.configure({ nested: true, HTMLAttributes: { 'data-type': 'taskItem' } }),
+      KeyboardTaskItem.configure({ nested: true, HTMLAttributes: { 'data-type': 'taskItem' } }),
       LocalImage,
       DiagramCode.configure({ lowlight }),
       MarkdownInlineMath.configure({

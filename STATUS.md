@@ -10,6 +10,7 @@ The project is initialized locally as Folio in `markdown-studio`.
 - Document tabs with separate text, editing history, modes, scroll positions and unsaved-change prompts.
 - Typed inline/display formulas, pipe tables and checklists convert in Write mode.
 - Mermaid previews follow the theme and hide the code frame outside source editing; code blocks support clipboard copying.
+- Source syntax highlighting and task checkboxes excluded from the Tab focus order.
 - Native file/folder dialogs, a lazy directory tree, explicit saving and Save As.
 - File access restricted to selected files and directory roots.
 - Save conflict detection, replacement through a temporary file, and unsaved-change prompts.
@@ -17,11 +18,11 @@ The project is initialized locally as Folio in `markdown-studio`.
 
 ## Verification
 
-Passed: 37 frontend tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. The initial two standalone Rust storage tests passed; native code has not changed since those checks.
+Passed: 40 frontend tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. The initial two standalone Rust storage tests passed; native code has not changed since those checks.
 
 The installed dependency tree uses Vitest 4.1.11 and KaTeX 0.18.10, with Mermaid sharing KaTeX. npm and Cargo lockfiles are tracked. esbuild's installed setup script is approved and optional fsevents installation scripts are disabled. A fresh online npm audit remains unverified in this session.
 
-Desktop screenshots from the user confirm the app runs on macOS. Native tab and window workflows still need manual acceptance testing; tests mock the native dialogs and commands. Windows/Linux launch, packaging, full visual inspection and performance remain unverified. This agent session cannot bind the development server port or resolve GitHub and package registries.
+The macOS release build and app bundling pass. A 6.9 MiB standalone app is installed at ~/Downloads/Folio.app, locally signed, signature-verified, launched and inspected through the native accessibility tree. Native tab and window workflows still need manual acceptance testing; tests mock the native dialogs and commands. Windows/Linux launch, distribution packaging, full visual inspection and startup timing remain unverified. This agent session cannot bind the development server port or resolve GitHub and package registries.
 
 ## Run next
 

@@ -35,3 +35,19 @@
 .width-toggle[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
 .full-width .document-scroll{padding-left:clamp(22px,3vw,42px);padding-right:clamp(22px,3vw,42px)}
 .full-width #editor,.full-width #source,.full-width .document-overline{max-width:none}
+#source-pane{position:relative;max-width:760px;margin:0 auto;font:13px/1.9 "SFMono-Regular",Consolas,monospace;tab-size:2}
+#source-pane #source,#source-highlight{font:inherit;letter-spacing:normal;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;tab-size:inherit;padding:0;margin:0;border:0;border-radius:0}
+#source-pane #source{position:relative;z-index:1;max-width:none;color:transparent;caret-color:var(--ink);-webkit-text-fill-color:transparent;background:none}
+#source-highlight{position:absolute;inset:0;overflow:hidden;pointer-events:none;color:var(--ink)}
+#source-highlight code{font:inherit;white-space:inherit;overflow-wrap:inherit}
+#source-highlight .hljs-section,#source-highlight .hljs-bullet,#source-highlight .hljs-symbol{color:var(--accent)}
+#source-highlight .hljs-strong,#source-highlight .hljs-emphasis{color:var(--accent);font-style:normal;font-weight:inherit}
+#source-highlight .hljs-link,#source-highlight .hljs-punctuation{color:var(--muted)}
+#source-highlight .hljs-code{color:var(--ink)}
+#source-highlight .hljs-formula{color:#8c6342}
+.dark .hljs-keyword,.dark .hljs-selector-tag,.dark .hljs-literal{color:#c3a5d3}
+.dark .hljs-string,.dark .hljs-attr{color:#acc99e}
+.dark .hljs-number,.dark .hljs-built_in,.dark #source-highlight .hljs-formula{color:#d9b181}
+.dark .hljs-title,.dark .hljs-function{color:#9cc6d5}
+.full-width #source-pane{max-width:none}
+@media(forced-colors:active){#source-pane #source{color:CanvasText;-webkit-text-fill-color:CanvasText}#source-highlight{display:none}}

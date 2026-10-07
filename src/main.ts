@@ -5,6 +5,7 @@ import { createEditor } from './editor'
 import { basename, type DocumentFile, type DirectoryEntry } from './files'
 import { sample } from './sample'
 import { attachTableControls } from './table-controls'
+import { attachSourceHighlighting } from './source-highlighting'
 import 'katex/dist/katex.min.css'
 import './style.css'
 
@@ -23,7 +24,7 @@ app.innerHTML = `
     <div class="document-tabs-bar"><div id="document-tabs" class="document-tabs" role="tablist" aria-label="Open documents"></div><button data-action="new" class="new-tab" title="New document" aria-label="New document">+</button></div>
     <div class="toolbar" role="toolbar" aria-label="Document formatting"><div class="formatting"><button data-format="heading" title="Heading">H₁</button><button data-format="bold" title="Bold"><b>B</b></button><button data-format="italic" title="Italic"><i>I</i></button><button data-format="strike" title="Strikethrough"><s>S</s></button><span class="toolbar-divider"></span><button data-format="list" title="Bullet list">≡</button><button data-format="task" title="Task list">☑</button><button data-format="quote" title="Blockquote">❞</button><button data-format="code" title="Code block">&lt;/&gt;</button><span class="toolbar-divider"></span><button data-format="table" title="Insert table">▦</button><button data-format="math" title="Insert formula">∑</button><button data-format="image" title="Insert image">▧</button><button data-format="mermaid" title="Insert Mermaid diagram">⋈</button></div><div class="mode-switch" aria-label="Editing mode"><button data-action="visual" class="active">Write</button><button data-action="source">Source</button><button data-action="read">Read</button></div></div>
     <div id="table-controls" class="table-controls" role="toolbar" aria-label="Table editing" hidden></div>
-    <section id="document-panel" class="document-scroll" role="tabpanel"><div class="document-overline">THE WORK STARTS HERE</div><div id="editor"></div><textarea id="source" spellcheck="false" aria-label="Markdown source" hidden></textarea></section>
+    <section id="document-panel" class="document-scroll" role="tabpanel"><div class="document-overline">THE WORK STARTS HERE</div><div id="editor"></div><div id="source-pane" hidden><pre id="source-highlight" aria-hidden="true"></pre><textarea id="source" spellcheck="false" aria-label="Markdown source" hidden></textarea></div></section>
     <footer><span id="save-status" role="status">${desktop ? 'Ready' : 'Browser preview'}</span><span id="document-metrics">Markdown</span><span>UTF-8 <span class="footer-dot">·</span> Markdown</span></footer>
   </main>
   <dialog id="input-dialog"><form method="dialog"><div class="dialog-label">FOLIO</div><h2 id="dialog-title"></h2><p id="dialog-description"></p><textarea id="dialog-value" rows="5" spellcheck="false" aria-label="Value"></textarea><div class="dialog-actions"><button value="cancel">Cancel</button><button value="apply" class="save-button">Apply</button></div></form></dialog>
@@ -33,6 +34,7 @@ app.innerHTML = `
 
 const get = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
 const source = get<HTMLTextAreaElement>('source')
+const refreshSourceHighlighting = attachSourceHighlighting(source, get('source-highlight'))
 let path: string | null = null
 let diskContent: string | null = null
 let originalContent = sample
@@ -191,6 +193,7 @@ function activateTab(id: number) {
   else (document.activeElement as HTMLElement | null)?.blur()
   source.setSelectionRange(...tab.sourceSelection)
   source.scrollTop = tab.sourceScrollTop
+  refreshSourceHighlighting()
   get('document-panel').scrollTop = tab.scrollTop
   get('document-metrics').textContent = 'Markdown'
   updateTitle()
@@ -363,6 +366,8 @@ function applyModeUi() {
   const mode = viewMode
   get('editor').hidden = mode === 'source'
   source.hidden = mode !== 'source'
+  get('source-pane').hidden = mode !== 'source'
+  if (mode === 'source') refreshSourceHighlighting()
   app.classList.toggle('read-mode', mode === 'read')
   for (const [action, active] of Object.entries({ visual: mode === 'write', source: mode === 'source', read: mode === 'read' })) {
     const button = document.querySelector(`[data-action="${action}"]`)
