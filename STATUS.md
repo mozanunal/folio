@@ -8,7 +8,7 @@ Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64,
 
 - Rust/Tauri desktop shell and cross-platform build configuration.
 - A visual editor using Tiptap with GFM table/task extensions, KaTeX formulas, local SVG/image node views, code highlighting and lazy Mermaid rendering.
-- Write, Source and Read modes, contextual table controls, six color themes, a remembered resizable sidebar and keyboard shortcuts.
+- Write, Source and Read modes, contextual table controls, six color schemes with independent light/dark modes, a remembered resizable sidebar and keyboard shortcuts.
 - Document tabs with separate text, editing history, modes, scroll positions and unsaved-change prompts.
 - Typed inline/display formulas, pipe tables and checklists convert in Write mode.
 - Mermaid previews follow the theme and hide the code frame outside source editing; code blocks support clipboard copying.

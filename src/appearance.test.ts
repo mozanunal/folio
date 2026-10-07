@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, expect, it, vi } from 'vitest'
-import { attachSidebarResize, attachThemePicker } from './appearance'
+import { attachSidebarResize, attachAppearanceControls } from './appearance'
 
 beforeEach(() => {
   const stored = new Map<string, string>()
@@ -10,28 +10,41 @@ beforeEach(() => {
   })
   document.documentElement.className = ''
   delete document.documentElement.dataset.theme
-  document.body.innerHTML = '<div id="app"><div id="handle"></div></div><select></select>'
+  document.body.innerHTML = '<div id="app"><div id="handle"></div></div><button id="mode"></button><button id="scheme"></button><div id="schemes" hidden></div>'
 })
 
-it('restores legacy themes and persists named palettes with the right dark appearance', () => {
+it('migrates the saved theme and changes mode independently of the color scheme', () => {
   localStorage.setItem('folio-theme', 'dark')
-  const picker = document.querySelector('select')!
-  attachThemePicker(picker)
-  expect(picker.options.length).toBe(6)
+  const mode = document.querySelector<HTMLButtonElement>('#mode')!
+  const scheme = document.querySelector<HTMLButtonElement>('#scheme')!
+  const panel = document.getElementById('schemes')!
+  attachAppearanceControls(mode, scheme, panel)
+  expect(panel.querySelectorAll('button').length).toBe(6)
+  expect(document.documentElement.dataset.theme).toBe('forest')
   expect(document.documentElement.classList.contains('dark')).toBe(true)
-  for (const [id, dark] of [['sepia', false], ['nord', true], ['ocean', false], ['graphite', true]] as const) {
-    picker.value = id
-    picker.dispatchEvent(new Event('change'))
-    expect(document.documentElement.dataset.theme).toBe(id)
-    expect(document.documentElement.classList.contains('dark')).toBe(dark)
-    expect(localStorage.getItem('folio-theme')).toBe(id)
-  }
+  scheme.click()
+  expect(panel.hidden).toBe(false)
+  panel.querySelector<HTMLButtonElement>('[data-scheme="ocean"]')!.click()
+  expect(document.documentElement.dataset.theme).toBe('ocean')
+  expect(document.documentElement.classList.contains('dark')).toBe(true)
+  expect(panel.hidden).toBe(true)
+  mode.click()
+  expect(document.documentElement.dataset.theme).toBe('ocean')
+  expect(document.documentElement.classList.contains('dark')).toBe(false)
+  expect(localStorage.getItem('folio-appearance')).toBe('light')
+  expect(localStorage.getItem('folio-scheme')).toBe('ocean')
+  scheme.click()
+  panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+  expect(panel.hidden).toBe(true)
+  expect(document.activeElement).toBe(scheme)
 })
 
-it('falls back to Paper for an unknown saved theme', () => {
-  localStorage.setItem('folio-theme', 'unknown')
-  attachThemePicker(document.querySelector('select')!)
+it('restores separate appearance preferences and falls back for an unknown scheme', () => {
+  localStorage.setItem('folio-scheme', 'unknown')
+  localStorage.setItem('folio-appearance', 'dark')
+  attachAppearanceControls(document.querySelector('#mode')!, document.querySelector('#scheme')!, document.getElementById('schemes')!)
   expect(document.documentElement.dataset.theme).toBe('light')
+  expect(document.documentElement.classList.contains('dark')).toBe(true)
 })
 
 it('restores sidebar width, supports keyboard bounds, and resets on double-click', () => {

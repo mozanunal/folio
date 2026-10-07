@@ -7,7 +7,7 @@ import { sample } from './sample'
 import { attachTableControls } from './table-controls'
 import { attachSourceHighlighting } from './source-highlighting'
 import { attachZoomShortcuts } from './zoom'
-import { attachSidebarResize, attachThemePicker } from './appearance'
+import { attachSidebarResize, attachAppearanceControls } from './appearance'
 import 'katex/dist/katex.min.css'
 import './style.css'
 
@@ -19,7 +19,7 @@ app.innerHTML = `
     <div class="workspace-actions"><button data-action="open-file">Open file <kbd>⌘O</kbd></button><button data-action="open-folder">Open folder <span>↗</span></button></div>
     <div class="sidebar-caption"><span id="workspace-name">YOUR DESK</span><button data-action="refresh" title="Refresh folder" aria-label="Refresh folder">↻</button></div>
     <nav id="file-tree" aria-label="Workspace files"><button class="file-row selected" data-action="sample"><span>▤</span> Welcome.md</button></nav>
-    <div class="sidebar-bottom"><span class="status-light"></span> Local files. Clear thoughts.<select id="theme-picker" aria-label="Color theme" title="Color theme"></select></div>
+    <div class="sidebar-bottom"><span class="status-light"></span> Local files. Clear thoughts.<div class="appearance-controls"><button id="appearance-mode" aria-label="Dark mode" aria-pressed="false"></button><button id="scheme-picker" aria-label="Color scheme" aria-expanded="false" aria-controls="scheme-panel"></button><div id="scheme-panel" class="scheme-panel" role="group" aria-label="Color schemes" hidden></div></div></div>
     <div id="sidebar-resize" class="sidebar-resize" role="separator" aria-label="Sidebar width" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
   </aside>
   <main>
@@ -548,7 +548,7 @@ window.addEventListener('beforeunload', event => {
 })
 
 setFullWidth(localStorage.getItem('folio-width') === 'full')
-attachThemePicker(get<HTMLSelectElement>('theme-picker'))
+attachAppearanceControls(get<HTMLButtonElement>('appearance-mode'), get<HTMLButtonElement>('scheme-picker'), get('scheme-panel'))
 attachSidebarResize(app, get('sidebar-resize'))
 if (desktop) {
   attachZoomShortcuts({

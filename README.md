@@ -59,7 +59,7 @@ Opening a folder keeps existing document tabs and unsaved changes. The native ex
 | Code blocks | Syntax highlighting and a copy button. |
 | Files and folders | Open a single document or browse a folder through the sidebar. Follow relative Markdown links in document tabs. |
 | Document tabs | Keep separate edits, undo history, view modes and scroll positions during the session. |
-| Appearance | Six color themes, a resizable sidebar, and a remembered centered or full width layout. |
+| Appearance | Six color schemes with independent light and dark modes, a resizable sidebar, and a remembered centered or full width layout. |
 | Saving | Save and Save As, unsaved-change prompts, and checks for external changes before overwriting. |
 
 KaTeX and Mermaid are bundled for offline rendering. Remote images still need a network connection. Folio uses the system webview rather than shipping a browser runtime.
@@ -76,7 +76,7 @@ In **Write** mode:
 - Use the diagram toolbar button to insert Mermaid. **Edit diagram** reveals its code.
 - Use **↔** beside New to toggle full width.
 - Drag the sidebar edge to reveal longer filenames. Double-click to reset its width, or focus the edge and use the arrow keys.
-- Choose Paper, Sepia, Ocean, Forest, Nord or Graphite from the color theme selector at the bottom of the sidebar. Folio remembers your theme and sidebar width.
+- Use the light/dark button at the sidebar bottom to switch appearance. The adjacent color scheme button offers Paper, Sepia, Ocean, Forest, Nord and Graphite, each in both modes. Folio remembers your mode, color scheme and sidebar width.
 
 Try [the sample document](examples/welcome.md) for tables, formulas, code and diagrams.
 

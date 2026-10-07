@@ -52,12 +52,24 @@
 .full-width #source-pane{max-width:none}
 @media(forced-colors:active){#source-pane #source{color:CanvasText;-webkit-text-fill-color:CanvasText}#source-highlight{display:none}}
 
-:root[data-theme="sepia"]{--paper:#faf3e6;--sidebar:#eee3ce;--surface:#f3e9d8;--ink:#493b2d;--muted:#84735d;--line:#ddceb7;--accent:#906033;--accent-soft:#ecdbc1}
-:root[data-theme="ocean"]{--paper:#f7fafc;--sidebar:#e8f0f5;--surface:#edf3f7;--ink:#283f50;--muted:#6d8190;--line:#d3dfe8;--accent:#276b91;--accent-soft:#d7e8f2}
-:root[data-theme="nord"]{--paper:#2e3440;--sidebar:#272d38;--surface:#363e4c;--ink:#eceff4;--muted:#a4b0c2;--line:#465164;--accent:#88c0d0;--accent-soft:#3c5261}
-:root[data-theme="graphite"]{--paper:#202124;--sidebar:#191a1d;--surface:#292b30;--ink:#e6e3dc;--muted:#a2a09b;--line:#3e4046;--accent:#dfba78;--accent-soft:#4a4031}
+ :root[data-theme="sepia"]:not(.dark){--paper:#faf3e6;--sidebar:#eee3ce;--surface:#f3e9d8;--ink:#493b2d;--muted:#84735d;--line:#ddceb7;--accent:#906033;--accent-soft:#ecdbc1}
+:root[data-theme="ocean"]:not(.dark){--paper:#f7fafc;--sidebar:#e8f0f5;--surface:#edf3f7;--ink:#283f50;--muted:#6d8190;--line:#d3dfe8;--accent:#276b91;--accent-soft:#d7e8f2}
+:root[data-theme="forest"]:not(.dark){--paper:#f7faf5;--sidebar:#e7eee2;--surface:#eef3e9;--ink:#304132;--muted:#6c806b;--line:#d6e0d0;--accent:#3f734a;--accent-soft:#d7e8d3}
+:root[data-theme="nord"]:not(.dark){--paper:#eceff4;--sidebar:#dfe5ed;--surface:#e5eaf1;--ink:#2e3440;--muted:#667489;--line:#cbd4e1;--accent:#426a88;--accent-soft:#d2e0ed}
+:root[data-theme="graphite"]:not(.dark){--paper:#fafafa;--sidebar:#ededed;--surface:#f2f2f2;--ink:#333333;--muted:#737373;--line:#dadada;--accent:#625a50;--accent-soft:#e6e1da}
+:root.dark[data-theme="light"]{--paper:#252421;--sidebar:#1d1c1a;--surface:#302f2a;--ink:#eee9de;--muted:#aaa496;--line:#454239;--accent:#d0c3a5;--accent-soft:#494333}
+:root.dark[data-theme="sepia"]{--paper:#2b231c;--sidebar:#231c16;--surface:#372d23;--ink:#eee0cb;--muted:#b5a18a;--line:#4e4032;--accent:#dfb17b;--accent-soft:#55402a}
+:root.dark[data-theme="ocean"]{--paper:#192833;--sidebar:#14212b;--surface:#223541;--ink:#dcebf2;--muted:#94adbd;--line:#354d5e;--accent:#88c6e5;--accent-soft:#2e4f63}
+:root.dark[data-theme="nord"]{--paper:#2e3440;--sidebar:#272d38;--surface:#363e4c;--ink:#eceff4;--muted:#a4b0c2;--line:#465164;--accent:#88c0d0;--accent-soft:#3c5261}
+:root.dark[data-theme="graphite"]{--paper:#202124;--sidebar:#191a1d;--surface:#292b30;--ink:#e6e3dc;--muted:#a2a09b;--line:#3e4046;--accent:#dfba78;--accent-soft:#4a4031}
 .sidebar-bottom{flex-wrap:wrap;white-space:normal;row-gap:12px}
-#theme-picker{width:100%;border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--ink);padding:7px 9px;font:11px "Avenir Next",Avenir,"Segoe UI",sans-serif;cursor:pointer}
+.appearance-controls{position:relative;display:flex;width:100%;gap:7px}
+.sidebar-bottom .appearance-controls>button{flex:1;margin:0;padding:8px 9px;font-size:11px;border:1px solid var(--line);background:var(--paper);text-align:center}
+.sidebar-bottom .appearance-controls>button:hover{background:var(--accent-soft)}
+.scheme-panel{position:absolute;bottom:calc(100% + 8px);left:0;right:0;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:6px;border:1px solid var(--line);border-radius:7px;background:var(--paper);box-shadow:0 6px 25px #0002;z-index:5}
+.sidebar-bottom .scheme-panel button{display:flex;align-items:center;gap:7px;margin:0;padding:9px 6px;font-size:11px;text-align:left}
+.scheme-panel button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.scheme-swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .sidebar-resize{position:absolute;right:-1px;top:0;bottom:0;width:7px;z-index:3;cursor:col-resize;touch-action:none}
 .sidebar-resize:hover,.sidebar-resize:focus-visible,.resizing-sidebar .sidebar-resize{background:var(--accent);opacity:.65}
 .resizing-sidebar,.resizing-sidebar *{cursor:col-resize!important;user-select:none!important}
