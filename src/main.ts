@@ -7,6 +7,7 @@ import { sample } from './sample'
 import { attachTableControls } from './table-controls'
 import { attachSourceHighlighting } from './source-highlighting'
 import { attachZoomShortcuts } from './zoom'
+import { attachSidebarResize, attachThemePicker } from './appearance'
 import 'katex/dist/katex.min.css'
 import './style.css'
 
@@ -18,7 +19,8 @@ app.innerHTML = `
     <div class="workspace-actions"><button data-action="open-file">Open file <kbd>⌘O</kbd></button><button data-action="open-folder">Open folder <span>↗</span></button></div>
     <div class="sidebar-caption"><span id="workspace-name">YOUR DESK</span><button data-action="refresh" title="Refresh folder" aria-label="Refresh folder">↻</button></div>
     <nav id="file-tree" aria-label="Workspace files"><button class="file-row selected" data-action="sample"><span>▤</span> Welcome.md</button></nav>
-    <div class="sidebar-bottom"><span class="status-light"></span> Local files. Clear thoughts.<button data-action="theme" title="Toggle light or dark appearance" aria-label="Toggle theme">◐</button></div>
+    <div class="sidebar-bottom"><span class="status-light"></span> Local files. Clear thoughts.<select id="theme-picker" aria-label="Color theme" title="Color theme"></select></div>
+    <div id="sidebar-resize" class="sidebar-resize" role="separator" aria-label="Sidebar width" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
   </aside>
   <main>
     <header class="titlebar"><button data-action="sidebar" class="icon-button" title="Toggle sidebar" aria-label="Toggle sidebar">☷</button><div class="document-heading"><span id="document-name">Welcome.md</span><span id="document-location">A place to begin</span></div><span id="dirty-indicator" aria-label="Unsaved changes" hidden>●</span><div class="title-actions"><button data-action="width" class="width-toggle" title="Use full width" aria-label="Full width" aria-pressed="false">↔</button><button data-action="new">New</button><button data-action="save" class="save-button">Save <kbd>⌘S</kbd></button></div></header>
@@ -501,10 +503,6 @@ const actions: Record<string, () => Promise<unknown> | unknown> = {
     setFullWidth(full)
     localStorage.setItem('folio-width', full ? 'full' : 'reading')
   },
-  theme: () => {
-    const dark = document.documentElement.classList.toggle('dark')
-    localStorage.setItem('folio-theme', dark ? 'dark' : 'light')
-  },
   visual: () => setMode('write'),
   source: () => setMode('source'),
   read: () => setMode('read'),
@@ -550,7 +548,8 @@ window.addEventListener('beforeunload', event => {
 })
 
 setFullWidth(localStorage.getItem('folio-width') === 'full')
-if (localStorage.getItem('folio-theme') === 'dark') document.documentElement.classList.add('dark')
+attachThemePicker(get<HTMLSelectElement>('theme-picker'))
+attachSidebarResize(app, get('sidebar-resize'))
 if (desktop) {
   attachZoomShortcuts({
     platform: navigator.platform,

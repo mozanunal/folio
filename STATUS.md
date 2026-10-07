@@ -8,7 +8,7 @@ Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64,
 
 - Rust/Tauri desktop shell and cross-platform build configuration.
 - A visual editor using Tiptap with GFM table/task extensions, KaTeX formulas, local SVG/image node views, code highlighting and lazy Mermaid rendering.
-- Write, Source and Read modes, contextual table controls, theme switching and keyboard shortcuts.
+- Write, Source and Read modes, contextual table controls, six color themes, a remembered resizable sidebar and keyboard shortcuts.
 - Document tabs with separate text, editing history, modes, scroll positions and unsaved-change prompts.
 - Typed inline/display formulas, pipe tables and checklists convert in Write mode.
 - Mermaid previews follow the theme and hide the code frame outside source editing; code blocks support clipboard copying.
@@ -24,7 +24,7 @@ Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64,
 
 ## Verification
 
-Passed: 52 JavaScript/TypeScript tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. All four Cargo tests pass, covering file access, save conflicts, startup file-open request queuing and resolving linked documents from authorized origins.
+Passed: 56 JavaScript/TypeScript tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. All four Cargo tests pass, covering file access, save conflicts, startup file-open request queuing and resolving linked documents from authorized origins.
 
 The installed dependency tree uses Vitest 4.1.11 and KaTeX 0.18.10, with Mermaid sharing KaTeX. npm and Cargo lockfiles are tracked. esbuild's installed setup script is approved and optional fsevents installation scripts are disabled. A fresh online npm audit remains unverified in this session.
 
