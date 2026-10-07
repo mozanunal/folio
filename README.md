@@ -2,22 +2,22 @@
   <img src="src-tauri/icons/icon.png" alt="Folio" width="88" />
   <h1>Folio</h1>
   <p>A focused Markdown editor for local files. Write visually, inspect the source, or settle in to read.</p>
-  <p><a href="https://github.com/mozanunal/folio/releases">Download the beta</a> · <a href="https://github.com/mozanunal/folio/issues">Report an issue</a> · <a href="releases/0.1.0.md">Release notes</a></p>
-  <p><img src="https://img.shields.io/badge/version-0.1.0_beta-54705b" alt="0.1.0 beta" /> <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /> <img src="https://img.shields.io/badge/desktop-Tauri_%2B_Rust-orange" alt="Tauri and Rust" /></p>
+  <p><a href="https://github.com/mozanunal/folio/releases">Download the beta</a> · <a href="https://github.com/mozanunal/folio/issues">Report an issue</a> · <a href="releases/0.1.1.md">Release notes</a></p>
+  <p><img src="https://img.shields.io/badge/version-0.1.1_beta-54705b" alt="0.1.1 beta" /> <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /> <img src="https://img.shields.io/badge/desktop-Tauri_%2B_Rust-orange" alt="Tauri and Rust" /></p>
 </div>
 
 Folio opens individual Markdown files and folders without importing them into a vault. It combines a visual editor with formulas, diagrams, images and code, inside a small desktop shell built with Rust and Tauri. Your documents remain ordinary `.md` files.
 
 ## Install
 
-Download **Folio 0.1.0 Beta** from [GitHub Releases](https://github.com/mozanunal/folio/releases).
+Download **Folio 0.1.1 Beta** from [GitHub Releases](https://github.com/mozanunal/folio/releases).
 
 | Platform | Asset | Installation |
 | --- | --- | --- |
-| macOS Apple Silicon | `Folio_0.1.0_macos-arm64.zip` | Extract and drag `Folio.app` into Applications. |
-| Windows Intel/AMD x64 | `Folio_0.1.0_windows-x64-setup.exe` | Run the setup installer. |
-| Linux Intel/AMD x64 | `Folio_0.1.0_linux-x64.AppImage` | Make executable and launch. |
-| Debian/Ubuntu Intel/AMD x64 | `Folio_0.1.0_linux-x64.deb` | Install using `sudo apt install ./Folio_0.1.0_linux-x64.deb`. |
+| macOS Apple Silicon | `Folio_0.1.1_macos-arm64.zip` | Extract and drag `Folio.app` into Applications. |
+| Windows Intel/AMD x64 | `Folio_0.1.1_windows-x64-setup.exe` | Run the setup installer. |
+| Linux Intel/AMD x64 | `Folio_0.1.1_linux-x64.AppImage` | Make executable and launch. |
+| Debian/Ubuntu Intel/AMD x64 | `Folio_0.1.1_linux-x64.deb` | Install using `sudo apt install ./Folio_0.1.1_linux-x64.deb`. |
 
 Only these architectures are built. Windows setup installs WebView2 if needed, which requires internet access. On Linux, AppImage may require FUSE; `--appimage-extract-and-run` is an alternative. The `.deb` package resolves its system dependencies through apt.
 
@@ -25,7 +25,7 @@ The beta is not signed by a trusted publisher or notarized by Apple. macOS may o
 
 ### macOS says “Apple could not verify Folio”
 
-Click **Done**, then open **System Settings > Privacy & Security**, scroll to Security, and click **Open Anyway** for Folio. Confirm with **Open**. This applies to the downloaded 0.1.0 beta. See the [macOS installation guide](docs/macos-installation.md) for the full steps and signing setup.
+Click **Done**, then open **System Settings > Privacy & Security**, scroll to Security, and click **Open Anyway** for Folio. Confirm with **Open**. This applies to the downloaded 0.1.1 beta. See the [macOS installation guide](docs/macos-installation.md) for the full steps and signing setup.
 
 ### Open from a terminal
 
@@ -165,7 +165,7 @@ Keep the version aligned across `package.json`, `package-lock.json`, `Cargo.toml
 
 The workflow checks versions, tests the frontend, runs native tests and packages exactly three targets: `aarch64-apple-darwin`, `x86_64-pc-windows-msvc` and `x86_64-unknown-linux-gnu`. Publication waits for every platform build. Releases are marked as prereleases and include SHA-256 checksums; existing releases are not overwritten.
 
-macOS packaging supports Developer ID signing and notarization when all required Apple secrets are configured; otherwise it uses ad-hoc signing. See [macOS signing setup](docs/macos-installation.md#removing-this-warning-in-future-releases). The published 0.1.0 beta is ad-hoc signed and not notarized.
+macOS packaging supports Developer ID signing and notarization when all required Apple secrets are configured; otherwise it uses ad-hoc signing. See [macOS signing setup](docs/macos-installation.md#removing-this-warning-in-future-releases). The published 0.1.1 beta is ad-hoc signed and not notarized.
 
 With an authenticated GitHub CLI, `npm run github:metadata` updates the repository About description, homepage and topics from `package.json`.
 

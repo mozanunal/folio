@@ -2,7 +2,7 @@
 
 The project is initialized locally as Folio in `markdown-studio`.
 
-Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64, Windows x64 and Linux x64, and publishes a prerelease after all tests and packaging jobs pass. Published artifacts and real Windows/Linux desktop behavior must be checked separately.
+Version 0.1.1 is designated beta. The release workflow targets only macOS ARM64, Windows x64 and Linux x64, and publishes a prerelease after all tests and packaging jobs pass. Published artifacts and real Windows/Linux desktop behavior must be checked separately.
 
 ## Implemented in source
 
