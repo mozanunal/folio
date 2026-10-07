@@ -1,7 +1,10 @@
+import { EditorState } from '@tiptap/pm/state'
+import { Fragment } from '@tiptap/pm/model'
 import { invoke, isTauri } from '@tauri-apps/api/core'
 import { createEditor } from './editor'
 import { basename, type DocumentFile, type DirectoryEntry } from './files'
 import { sample } from './sample'
+import { attachTableControls } from './table-controls'
 import 'katex/dist/katex.min.css'
 import './style.css'
 
@@ -17,8 +20,10 @@ app.innerHTML = `
   </aside>
   <main>
     <header class="titlebar"><button data-action="sidebar" class="icon-button" title="Toggle sidebar" aria-label="Toggle sidebar">☷</button><div class="document-heading"><span id="document-name">Welcome.md</span><span id="document-location">A place to begin</span></div><span id="dirty-indicator" aria-label="Unsaved changes" hidden>●</span><div class="title-actions"><button data-action="new">New</button><button data-action="save" class="save-button">Save <kbd>⌘S</kbd></button></div></header>
-    <div class="toolbar" role="toolbar" aria-label="Document formatting"><div class="formatting"><button data-format="heading" title="Heading">H₁</button><button data-format="bold" title="Bold"><b>B</b></button><button data-format="italic" title="Italic"><i>I</i></button><button data-format="strike" title="Strikethrough"><s>S</s></button><span class="toolbar-divider"></span><button data-format="list" title="Bullet list">≡</button><button data-format="task" title="Task list">☑</button><button data-format="quote" title="Blockquote">❞</button><button data-format="code" title="Code block">&lt;/&gt;</button><span class="toolbar-divider"></span><button data-format="table" title="Insert table">▦</button><button data-format="math" title="Insert formula">∑</button><button data-format="image" title="Insert image">▧</button><button data-format="mermaid" title="Insert Mermaid diagram">⋈</button></div><div class="mode-switch" aria-label="Editing mode"><button data-action="visual" class="active">Write</button><button data-action="source">Source</button></div></div>
-    <section class="document-scroll"><div class="document-overline">THE WORK STARTS HERE</div><div id="editor"></div><textarea id="source" spellcheck="false" aria-label="Markdown source" hidden></textarea></section>
+    <div class="document-tabs-bar"><div id="document-tabs" class="document-tabs" role="tablist" aria-label="Open documents"></div><button data-action="new" class="new-tab" title="New document" aria-label="New document">+</button></div>
+    <div class="toolbar" role="toolbar" aria-label="Document formatting"><div class="formatting"><button data-format="heading" title="Heading">H₁</button><button data-format="bold" title="Bold"><b>B</b></button><button data-format="italic" title="Italic"><i>I</i></button><button data-format="strike" title="Strikethrough"><s>S</s></button><span class="toolbar-divider"></span><button data-format="list" title="Bullet list">≡</button><button data-format="task" title="Task list">☑</button><button data-format="quote" title="Blockquote">❞</button><button data-format="code" title="Code block">&lt;/&gt;</button><span class="toolbar-divider"></span><button data-format="table" title="Insert table">▦</button><button data-format="math" title="Insert formula">∑</button><button data-format="image" title="Insert image">▧</button><button data-format="mermaid" title="Insert Mermaid diagram">⋈</button></div><div class="mode-switch" aria-label="Editing mode"><button data-action="visual" class="active">Write</button><button data-action="source">Source</button><button data-action="read">Read</button></div></div>
+    <div id="table-controls" class="table-controls" role="toolbar" aria-label="Table editing" hidden></div>
+    <section id="document-panel" class="document-scroll" role="tabpanel"><div class="document-overline">THE WORK STARTS HERE</div><div id="editor"></div><textarea id="source" spellcheck="false" aria-label="Markdown source" hidden></textarea></section>
     <footer><span id="save-status" role="status">${desktop ? 'Ready' : 'Browser preview'}</span><span id="document-metrics">Markdown</span><span>UTF-8 <span class="footer-dot">·</span> Markdown</span></footer>
   </main>
   <dialog id="input-dialog"><form method="dialog"><div class="dialog-label">FOLIO</div><h2 id="dialog-title"></h2><p id="dialog-description"></p><textarea id="dialog-value" rows="5" spellcheck="false" aria-label="Value"></textarea><div class="dialog-actions"><button value="cancel">Cancel</button><button value="apply" class="save-button">Apply</button></div></form></dialog>
@@ -33,7 +38,28 @@ let diskContent: string | null = null
 let originalContent = sample
 let dirty = false
 let revision = 0
-let sourceMode = false
+type ViewMode = 'write' | 'source' | 'read'
+let viewMode: ViewMode = 'write'
+interface DocumentTab {
+  id: number
+  name: string
+  path: string | null
+  diskContent: string | null
+  originalContent: string
+  dirty: boolean
+  revision: number
+  mode: ViewMode
+  source: string
+  state: EditorState
+  scrollTop: number
+  sourceScrollTop: number
+  sourceSelection: [number, number]
+  welcome?: boolean
+}
+const tabs: DocumentTab[] = []
+let nextTabId = 1
+let activeTabId = 0
+let tabSignature = ''
 let workspace: string | null = null
 let busy = false
 let statusTimer: ReturnType<typeof setTimeout>
@@ -48,10 +74,17 @@ function message(text: string, error = false) {
 }
 
 function updateTitle() {
-  get('document-name').textContent = path ? basename(path) : 'Untitled.md'
+  const tab = tabs.find(tab => tab.id === activeTabId)
+  if (tab) {
+    Object.assign(tab, { path, diskContent, originalContent, dirty, revision })
+    if (path) tab.name = basename(path)
+  }
+  const name = tab?.name ?? 'Untitled.md'
+  get('document-name').textContent = name
   get('document-location').textContent = path || 'Not saved to disk'
   get('dirty-indicator').hidden = !dirty
-  document.title = `${dirty ? '● ' : ''}${path ? basename(path) : 'Untitled'} | Folio`
+  document.title = `${dirty ? '● ' : ''}${name} | Folio`
+  renderTabs()
 }
 
 function changed() {
@@ -61,7 +94,7 @@ function changed() {
   message('Unsaved changes')
   clearTimeout(statusTimer)
   statusTimer = setTimeout(() => {
-    const text = sourceMode ? source.value : editor.getText()
+    const text = viewMode === 'source' ? source.value : editor.getText()
     get('document-metrics').textContent = `${text.trim() ? text.trim().split(/\s+/).length.toLocaleString() : 0} words`
   }, 500)
 }
@@ -89,10 +122,104 @@ const editor = createEditor(get('editor'), sample, {
     else editor.chain().setNodeSelection(position).updateInlineMath({ latex: value }).focus().run()
   },
 })
+const refreshTableControls = attachTableControls(editor, get('table-controls'))
+showDocument({ path: 'Welcome.md', content: sample }, false, true)
+
+function stashTab() {
+  const tab = tabs.find(tab => tab.id === activeTabId)
+  if (!tab) return
+  Object.assign(tab, {
+    path, diskContent, originalContent, dirty, revision, mode: viewMode,
+    source: source.value, state: editor.state,
+    scrollTop: get('document-panel').scrollTop,
+    sourceScrollTop: source.scrollTop,
+    sourceSelection: [source.selectionStart, source.selectionEnd],
+  })
+}
+
+function renderTabs() {
+  const signature = JSON.stringify([activeTabId, tabs.map(tab => [tab.id, tab.name, tab.path, tab.dirty])])
+  if (signature === tabSignature) return
+  tabSignature = signature
+  const strip = get('document-tabs')
+  strip.replaceChildren()
+  for (const tab of tabs) {
+    const item = document.createElement('div')
+    item.className = `document-tab${tab.id === activeTabId ? ' active' : ''}`
+    item.setAttribute('role', 'presentation')
+    const button = document.createElement('button')
+    button.id = `tab-${tab.id}`
+    button.setAttribute('role', 'tab')
+    button.setAttribute('aria-selected', String(tab.id === activeTabId))
+    button.setAttribute('aria-controls', 'document-panel')
+    button.setAttribute('aria-label', `${tab.name}${tab.dirty ? ', unsaved changes' : ''}`)
+    button.tabIndex = tab.id === activeTabId ? 0 : -1
+    button.title = tab.path || tab.name
+    button.textContent = `${tab.dirty ? '● ' : ''}${tab.name}`
+    button.onclick = () => run(() => activateTab(tab.id))
+    const close = document.createElement('button')
+    close.className = 'close-tab'
+    close.textContent = '×'
+    close.setAttribute('aria-label', `Close ${tab.name}`)
+    close.onclick = () => run(() => closeTab(tab.id))
+    item.append(button, close)
+    strip.append(item)
+  }
+  get('document-panel').setAttribute('aria-labelledby', `tab-${activeTabId}`)
+}
+
+function activateTab(id: number) {
+  if (id === activeTabId) return
+  const tab = tabs.find(tab => tab.id === id)
+  if (!tab) return
+  stashTab()
+  clearTimeout(statusTimer)
+  activeTabId = id
+  path = tab.path
+  diskContent = tab.diskContent
+  originalContent = tab.originalContent
+  dirty = tab.dirty
+  revision = tab.revision
+  viewMode = tab.mode
+  source.value = tab.source
+  editor.setEditable(viewMode === 'write', false)
+  editor.view.updateState(EditorState.create({ schema: editor.schema, plugins: editor.state.plugins }))
+  editor.view.updateState(tab.state)
+  applyModeUi()
+  if (viewMode === 'source') source.focus({ preventScroll: true })
+  else if (viewMode === 'write') editor.view.focus()
+  else (document.activeElement as HTMLElement | null)?.blur()
+  source.setSelectionRange(...tab.sourceSelection)
+  source.scrollTop = tab.sourceScrollTop
+  get('document-panel').scrollTop = tab.scrollTop
+  get('document-metrics').textContent = 'Markdown'
+  updateTitle()
+  message(dirty ? 'Unsaved changes' : 'Ready')
+  document.querySelectorAll<HTMLButtonElement>('.file-row').forEach(row => row.classList.toggle('selected', row.title === path))
+  get(`tab-${id}`).scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+}
+
+async function closeTab(id: number) {
+  const index = tabs.findIndex(tab => tab.id === id)
+  if (index < 0) return
+  const previous = activeTabId
+  if (tabs[index].dirty || (id === activeTabId && dirty)) {
+    activateTab(id)
+    if (!await mayLeave()) return
+  }
+  const closingActive = id === activeTabId
+  tabs.splice(index, 1)
+  if (closingActive) {
+    activeTabId = 0
+    if (tabs.length) activateTab(tabs[Math.min(index, tabs.length - 1)].id)
+    else showDocument({ path: '', content: '' }, false)
+  } else renderTabs()
+  if (previous !== id && tabs.some(tab => tab.id === previous)) activateTab(previous)
+}
 
 function markdown(): string {
   if (!dirty) return originalContent
-  return sourceMode ? source.value : editor.getMarkdown()
+  return viewMode === 'source' ? source.value : editor.getMarkdown()
 }
 
 async function save(saveAs = false): Promise<boolean> {
@@ -123,20 +250,30 @@ async function mayLeave(): Promise<boolean> {
   return decision === 'discard' || (decision === 'save' && await save())
 }
 
-function showDocument(document: DocumentFile, fromDisk = true) {
-  path = fromDisk ? document.path : null
-  diskContent = fromDisk ? document.content : null
-  originalContent = document.content
-  dirty = false
-  source.value = document.content
-  editor.commands.setContent(document.content, { contentType: 'markdown', emitUpdate: false })
-  updateTitle()
-  message('Ready')
-  editor.commands.focus('start')
+function showDocument(document: DocumentFile, fromDisk = true, welcome = false) {
+  const existing = tabs.find(tab => fromDisk ? tab.path === document.path : welcome && tab.welcome)
+  if (existing) { activateTab(existing.id); return }
+  let doc = editor.schema.nodeFromJSON(editor.markdown!.parse(document.content))
+  if (doc.lastChild?.type.name !== 'paragraph') {
+    doc = doc.copy(doc.content.append(Fragment.from(editor.schema.nodes.paragraph.create())))
+  }
+  const state = EditorState.create({
+    doc,
+    plugins: editor.state.plugins,
+  })
+  const id = nextTabId++
+  tabs.push({
+    id, name: document.path ? basename(document.path) : `Untitled ${id}.md`,
+    path: fromDisk ? document.path : null,
+    diskContent: fromDisk ? document.content : null,
+    originalContent: document.content, dirty: false, revision: 0,
+    mode: 'write', source: document.content, state,
+    scrollTop: 0, sourceScrollTop: 0, sourceSelection: [0, 0], welcome,
+  })
+  activateTab(id)
 }
 
 async function openFile() {
-  if (!await mayLeave()) return
   if (desktop) {
     const document = await invoke<DocumentFile | null>('choose_file')
     if (document) showDocument(document)
@@ -149,7 +286,6 @@ async function openFile() {
       if (!file) return
       try {
         showDocument({ path: file.name, content: await file.text() }, false)
-        get('document-name').textContent = file.name
       } catch (error) { message(String(error), true) }
     }
     picker.click()
@@ -190,7 +326,6 @@ async function renderDirectory(directory: string, container: HTMLElement) {
       })
     } else {
       button.onclick = () => run(async () => {
-        if (!await mayLeave()) return
         showDocument(await invoke<DocumentFile>('read_document', { path: entry.path }))
         document.querySelectorAll('.file-row.selected').forEach(row => row.classList.remove('selected'))
         button.classList.add('selected')
@@ -209,21 +344,37 @@ async function openFolder() {
   app.classList.remove('sidebar-hidden')
 }
 
-function setMode(mode: boolean) {
-  if (sourceMode === mode) return
-  if (mode) source.value = markdown()
-  else editor.commands.setContent(source.value, { contentType: 'markdown', emitUpdate: false })
-  sourceMode = mode
-  get('editor').hidden = mode
-  source.hidden = !mode
-  document.querySelector('[data-action="visual"]')?.classList.toggle('active', !mode)
-  document.querySelector('[data-action="source"]')?.classList.toggle('active', mode)
-  document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => { button.disabled = mode })
-  if (mode) source.focus()
-  else editor.commands.focus()
+function setMode(mode: ViewMode) {
+  if (viewMode === mode) return
+  const content = markdown()
+  editor.setEditable(mode === 'write', false)
+  if (mode === 'source') source.value = content
+  else if (viewMode === 'source' || mode === 'read') {
+    editor.commands.setContent(content, { contentType: 'markdown', emitUpdate: false })
+  }
+  viewMode = mode
+  applyModeUi()
+  if (mode === 'source') source.focus()
+  else if (mode === 'write') editor.commands.focus(undefined, { scrollIntoView: false })
+  else (document.activeElement as HTMLElement | null)?.blur()
+}
+
+function applyModeUi() {
+  const mode = viewMode
+  get('editor').hidden = mode === 'source'
+  source.hidden = mode !== 'source'
+  app.classList.toggle('read-mode', mode === 'read')
+  for (const [action, active] of Object.entries({ visual: mode === 'write', source: mode === 'source', read: mode === 'read' })) {
+    const button = document.querySelector(`[data-action="${action}"]`)
+    button?.classList.toggle('active', active)
+    button?.setAttribute('aria-pressed', String(active))
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => { button.disabled = mode !== 'write' })
+  refreshTableControls()
 }
 
 async function format(action: string) {
+  if (viewMode !== 'write') return
   const chain = editor.chain().focus()
   switch (action) {
     case 'heading': chain.toggleHeading({ level: 1 }).run(); break
@@ -260,16 +411,17 @@ const actions: Record<string, () => Promise<unknown> | unknown> = {
   'open-file': openFile,
   'open-folder': openFolder,
   save: () => save(),
-  new: async () => { if (await mayLeave()) showDocument({ path: '', content: '' }, false) },
-  sample: async () => { if (await mayLeave()) showDocument({ path: '', content: sample }, false) },
+  new: () => showDocument({ path: '', content: '' }, false),
+  sample: () => showDocument({ path: 'Welcome.md', content: sample }, false, true),
   refresh: () => workspace && renderDirectory(workspace, get('file-tree')),
   sidebar: () => app.classList.toggle('sidebar-hidden'),
   theme: () => {
     const dark = document.documentElement.classList.toggle('dark')
     localStorage.setItem('folio-theme', dark ? 'dark' : 'light')
   },
-  visual: () => setMode(false),
-  source: () => setMode(true),
+  visual: () => setMode('write'),
+  source: () => setMode('source'),
+  read: () => setMode('read'),
 }
 
 app.addEventListener('click', event => {
@@ -280,31 +432,53 @@ app.addEventListener('click', event => {
   if (button.dataset.format) void run(() => format(button.dataset.format!))
 })
 
+get('document-tabs').addEventListener('keydown', event => {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+  event.preventDefault()
+  const index = tabs.findIndex(tab => tab.id === activeTabId)
+  const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
+    : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length
+  void run(() => { activateTab(tabs[next].id); get(`tab-${activeTabId}`).focus() })
+})
+
 source.addEventListener('input', changed)
 window.addEventListener('keydown', event => {
+  if (document.querySelector('dialog[open]')) return
+  if (event.ctrlKey && event.key === 'Tab') {
+    event.preventDefault()
+    const index = tabs.findIndex(tab => tab.id === activeTabId)
+    void run(() => activateTab(tabs[(index + (event.shiftKey ? -1 : 1) + tabs.length) % tabs.length].id))
+    return
+  }
   if (!(event.metaKey || event.ctrlKey) || document.querySelector('dialog[open]')) return
   const key = event.key.toLowerCase()
-  if (!['s', 'o', 'n'].includes(key)) return
+  if (!['s', 'o', 'n', 'w'].includes(key)) return
   event.preventDefault()
   if (key === 's') void run(() => save(event.shiftKey))
   if (key === 'o') void run(event.shiftKey ? openFolder : openFile)
   if (key === 'n') void run(actions.new)
+  if (key === 'w') void run(() => closeTab(activeTabId))
 })
 window.addEventListener('beforeunload', event => {
-  if (dirty && !desktop) event.preventDefault()
+  if (!desktop && (dirty || tabs.some(tab => tab.dirty))) event.preventDefault()
 })
 
 if (localStorage.getItem('folio-theme') === 'dark') document.documentElement.classList.add('dark')
 if (desktop) {
   void import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {
     await getCurrentWindow().onCloseRequested(async event => {
-      if (!dirty) return
+      if (!dirty && !tabs.some(tab => tab.dirty)) return
       event.preventDefault()
       await run(async () => {
-        if (await mayLeave()) {
-          dirty = false
-          await getCurrentWindow().close()
+        stashTab()
+        for (const tab of tabs) {
+          if (!tab.dirty) continue
+          activateTab(tab.id)
+          if (!await mayLeave()) return
         }
+        dirty = false
+        for (const tab of tabs) tab.dirty = false
+        await getCurrentWindow().close()
       })
     })
   }).catch(error => message(String(error), true))
