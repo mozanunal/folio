@@ -6,6 +6,7 @@ import { basename, headingSlug, parseDocumentLink, type DocumentFile, type Direc
 import { sample } from './sample'
 import { attachTableControls } from './table-controls'
 import { attachSourceHighlighting } from './source-highlighting'
+import { attachZoomShortcuts } from './zoom'
 import 'katex/dist/katex.min.css'
 import './style.css'
 
@@ -546,6 +547,15 @@ window.addEventListener('beforeunload', event => {
 setFullWidth(localStorage.getItem('folio-width') === 'full')
 if (localStorage.getItem('folio-theme') === 'dark') document.documentElement.classList.add('dark')
 if (desktop) {
+  attachZoomShortcuts({
+    platform: navigator.platform,
+    storage: localStorage,
+    apply: async scale => {
+      const { getCurrentWebview } = await import('@tauri-apps/api/webview')
+      await getCurrentWebview().setZoom(scale)
+    },
+    error: error => message(`Could not change zoom: ${String(error)}`, true),
+  })
   void import('@tauri-apps/api/event').then(async ({ listen }) => {
     await listen('documents-opened', () => { void openRequestedDocuments() })
     await openRequestedDocuments()

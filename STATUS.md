@@ -13,6 +13,7 @@ Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64,
 - Typed inline/display formulas, pipe tables and checklists convert in Write mode.
 - Mermaid previews follow the theme and hide the code frame outside source editing; code blocks support clipboard copying.
 - Source syntax highlighting and task checkboxes excluded from the Tab focus order.
+- Platform-specific Cmd/Ctrl plus, minus and zero zoom shortcuts, persistent native webview zoom, and bounded zoom requests applied in order.
 - Native file/folder dialogs, a lazy directory tree, explicit saving and Save As.
 - Queued macOS file-open events, startup file arguments and the window-destroy capability required by the native close handler.
 - File access restricted to selected files, directory roots and explicitly followed Markdown/text links from an authorized document.
@@ -22,7 +23,7 @@ Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64,
 
 ## Verification
 
-Passed: 47 JavaScript/TypeScript tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. All four Cargo tests pass, covering file access, save conflicts, startup file-open request queuing and resolving linked documents from authorized origins.
+Passed: 52 JavaScript/TypeScript tests using Node and Vitest, including typing conversions, table commands and Markdown round trips, read-only behavior, clipboard feedback, Mermaid theme changes, per-document tab state, save arguments and tab/window close prompts. TypeScript checking and the Vite production build pass. All four Cargo tests pass, covering file access, save conflicts, startup file-open request queuing and resolving linked documents from authorized origins.
 
 The installed dependency tree uses Vitest 4.1.11 and KaTeX 0.18.10, with Mermaid sharing KaTeX. npm and Cargo lockfiles are tracked. esbuild's installed setup script is approved and optional fsevents installation scripts are disabled. A fresh online npm audit remains unverified in this session.
 

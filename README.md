@@ -85,6 +85,11 @@ Use **Cmd** on macOS and **Ctrl** on Windows/Linux unless specified otherwise.
 | Close tab | Cmd/Ctrl+W |
 | Next tab | Ctrl+Tab |
 | Previous tab | Ctrl+Shift+Tab |
+| Zoom in | Cmd/Ctrl++ or Cmd/Ctrl+= |
+| Zoom out | Cmd/Ctrl+- |
+| Reset zoom to 100% | Cmd/Ctrl+0 |
+
+Desktop zoom changes the whole interface in 10% steps, from 50% to 200%, and is remembered between sessions. Browser previews use the browser's own zoom shortcuts.
 
 ## Beta status
 
