@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "tauri": "tauri",
+    "tauri": "node scripts/tauri.mjs",
     "test": "npm run test:core && vitest run",
     "test:core": "node --test src/files.node-test.ts"
   },
@@ -22,7 +22,7 @@
     "@tiptap/extension-mathematics": "^3.0.0",
     "@tiptap/extension-code-block-lowlight": "^3.0.0",
     "@tauri-apps/api": "^2.0.0",
-    "katex": "^0.16.22",
+    "katex": "^0.18.2",
     "lowlight": "^3.3.0",
     "highlight.js": "^11.11.1",
     "mermaid": "^11.12.0"
@@ -30,12 +30,21 @@
   "devDependencies": {
     "typescript": "^5.9.3",
     "vite": "^7.1.0",
-    "vitest": "^3.2.0",
+    "vitest": "^4.1.11",
     "jsdom": "^26.1.0",
     "@types/katex": "^0.16.7",
     "@tauri-apps/cli": "^2.0.0"
   },
   "engines": {
     "node": ">=22.18"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "fsevents": false
+  },
+  "overrides": {
+    "mermaid": {
+      "katex": "$katex"
+    }
   }
 }
