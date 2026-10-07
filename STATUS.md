@@ -15,7 +15,8 @@ Version 0.1.0 is designated beta. The release workflow targets only macOS ARM64,
 - Source syntax highlighting and task checkboxes excluded from the Tab focus order.
 - Platform-specific Cmd/Ctrl plus, minus and zero zoom shortcuts, persistent native webview zoom, and bounded zoom requests applied in order.
 - Native file/folder dialogs, a lazy directory tree, explicit saving and Save As.
-- Queued macOS file-open events, startup file arguments and the window-destroy capability required by the native close handler.
+- Queued macOS file/folder-open events, startup file/directory arguments and the window-destroy capability required by the native close handler.
+- A macOS `folio` command-line launcher installed through `npm run install:cli`, including paths with spaces and forwarding to a running app.
 - File access restricted to selected files, directory roots and explicitly followed Markdown/text links from an authorized document.
 - Relative Markdown links open or select tabs, preserve unsaved edits and Read mode, and navigate heading fragments.
 - Save conflict detection, replacement through a temporary file, and unsaved-change prompts.

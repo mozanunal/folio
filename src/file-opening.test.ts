@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { expect, it, vi } from 'vitest'
 
-type Request = { Ok: { path: string; content: string } } | { Err: string }
+type Request = { Ok: { path: string; content: string } | { directory: string } } | { Err: string }
 const native = vi.hoisted(() => ({
   pending: [] as Request[], opened: undefined as undefined | (() => void),
   invoke: vi.fn(), save: undefined as undefined | ((path: string) => void),
@@ -17,15 +17,17 @@ it('opens startup and later native requests, preserves dirty tabs, and waits for
   vi.stubGlobal('localStorage', { getItem: () => null, setItem: vi.fn() })
   vi.stubGlobal('IntersectionObserver', class { observe() {} disconnect() {} })
   document.body.innerHTML = '<div id="app"></div>'
-  native.pending = [{ Ok: { path: '/docs/first.md', content: '# First file' } }]
+  native.pending = [{ Ok: { directory: '/initial-notes' } }, { Ok: { path: '/docs/first.md', content: '# First file' } }]
   native.invoke.mockImplementation(async (command: string) => {
-    if (command === 'take_open_documents') return native.pending.splice(0)
+    if (command === 'take_open_requests') return native.pending.splice(0)
     if (command === 'save_document') return new Promise<string>(resolve => { native.save = resolve })
+    if (command === 'list_directory') return [{ path: '/notes/ideas.md', name: 'ideas.md', directory: false }]
     throw new Error(`Unexpected command: ${command}`)
   })
   await import('./main')
   await vi.dynamicImportSettled()
   await settle()
+  expect(document.querySelector('#workspace-name')?.textContent).toBe('INITIAL-NOTES')
   expect(document.querySelector('#document-name')?.textContent).toBe('first.md')
   expect(document.querySelectorAll('[role="tab"]').length).toBe(1)
   await click('[data-action="source"]')
@@ -55,5 +57,18 @@ it('opens startup and later native requests, preserves dirty tabs, and waits for
   native.save!('/docs/first.md')
   await settle()
   expect(document.querySelector('#document-name')?.textContent).toBe('third.md')
+  expect(document.querySelectorAll('[role="tab"]').length).toBe(3)
+
+  await click('[role="tab"][title="/docs/second.md"]')
+  await click('[data-action="source"]')
+  source.value = 'Keep my unsaved notes.'
+  source.dispatchEvent(new Event('input', { bubbles: true }))
+  native.pending.push({ Ok: { directory: '/notes' } })
+  native.opened!()
+  await settle()
+  expect(document.querySelector('#workspace-name')?.textContent).toBe('NOTES')
+  expect(document.querySelector('#file-tree')?.textContent).toContain('ideas.md')
+  expect(document.querySelector('#document-name')?.textContent).toBe('second.md')
+  expect(source.value).toBe('Keep my unsaved notes.')
   expect(document.querySelectorAll('[role="tab"]').length).toBe(3)
 })

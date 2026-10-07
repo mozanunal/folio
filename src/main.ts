@@ -381,6 +381,10 @@ async function openFolder() {
   if (!desktop) { message('Open folders in the desktop app.', true); return }
   const selected = await invoke<string | null>('choose_directory')
   if (!selected) return
+  await showWorkspace(selected)
+}
+
+async function showWorkspace(selected: string) {
   workspace = selected
   get('workspace-name').textContent = basename(selected).toUpperCase()
   await renderDirectory(selected, get('file-tree'))
@@ -451,20 +455,21 @@ async function run(action: () => Promise<unknown> | unknown) {
   try { await action() } catch (error) { message(String(error), true) }
   finally {
     busy = false
-    if (externalOpensPending) void openRequestedDocuments()
+    if (externalOpensPending) void openRequestedPaths()
   }
 }
 
-async function openRequestedDocuments() {
+async function openRequestedPaths() {
   externalOpensPending = true
   if (busy) return
   await run(async () => {
     externalOpensPending = false
-    const requests = await invoke<Array<{ Ok: DocumentFile } | { Err: string }>>('take_open_documents')
+    const requests = await invoke<Array<{ Ok: DocumentFile | { directory: string } } | { Err: string }>>('take_open_requests')
     const replaceWelcome = tabs.length === 1 && tabs[0].welcome && !dirty && !tabs[0].dirty
     let opened = false
     for (const request of requests) {
       if ('Err' in request) { message(request.Err, true); continue }
+      if ('directory' in request.Ok) { await showWorkspace(request.Ok.directory); continue }
       showDocument(request.Ok)
       opened = true
     }
@@ -557,8 +562,8 @@ if (desktop) {
     error: error => message(`Could not change zoom: ${String(error)}`, true),
   })
   void import('@tauri-apps/api/event').then(async ({ listen }) => {
-    await listen('documents-opened', () => { void openRequestedDocuments() })
-    await openRequestedDocuments()
+    await listen('paths-opened', () => { void openRequestedPaths() })
+    await openRequestedPaths()
   }).catch(error => message(String(error), true))
   void import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {
     await getCurrentWindow().onCloseRequested(async event => {

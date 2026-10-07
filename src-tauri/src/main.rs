@@ -19,6 +19,13 @@ struct Document {
 }
 
 #[derive(Serialize)]
+#[serde(untagged)]
+enum OpenRequest {
+    Document(Document),
+    Directory { directory: String },
+}
+
+#[derive(Serialize)]
 struct Entry {
     path: String,
     name: String,
@@ -61,16 +68,43 @@ fn open_document(
     Ok(document)
 }
 
+fn open_directory(
+    app: &tauri::AppHandle,
+    access: &WorkspaceAccess,
+    path: PathBuf,
+) -> Result<String, String> {
+    let path = path.canonicalize().map_err(|e| e.to_string())?;
+    if !path.is_dir() {
+        return Err("Choose a directory to open as a workspace.".into());
+    }
+    access
+        .directories
+        .lock()
+        .map_err(|e| e.to_string())?
+        .insert(path.clone());
+    app.asset_protocol_scope()
+        .allow_directory(&path, true)
+        .map_err(|e| e.to_string())?;
+    Ok(path.to_string_lossy().into_owned())
+}
+
 #[tauri::command]
-fn take_open_documents(
+fn take_open_requests(
     app: tauri::AppHandle,
     access: State<'_, WorkspaceAccess>,
     pending: State<'_, PendingOpens>,
-) -> Result<Vec<Result<Document, String>>, String> {
+) -> Result<Vec<Result<OpenRequest, String>>, String> {
     Ok(pending
         .take()?
         .into_iter()
-        .map(|path| open_document(&app, &access, path))
+        .map(|path| {
+            if path.is_dir() {
+                open_directory(&app, &access, path)
+                    .map(|directory| OpenRequest::Directory { directory })
+            } else {
+                open_document(&app, &access, path).map(OpenRequest::Document)
+            }
+        })
         .collect())
 }
 
@@ -109,20 +143,8 @@ async fn choose_directory(
     let Some(selection) = app.dialog().file().blocking_pick_folder() else {
         return Ok(None);
     };
-    let path = selection
-        .into_path()
-        .map_err(|e| e.to_string())?
-        .canonicalize()
-        .map_err(|e| e.to_string())?;
-    access
-        .directories
-        .lock()
-        .map_err(|e| e.to_string())?
-        .insert(path.clone());
-    app.asset_protocol_scope()
-        .allow_directory(&path, true)
-        .map_err(|e| e.to_string())?;
-    Ok(Some(path.to_string_lossy().into_owned()))
+    let path = selection.into_path().map_err(|e| e.to_string())?;
+    open_directory(&app, &access, path).map(Some)
 }
 
 #[tauri::command]
@@ -219,10 +241,10 @@ fn main() {
     let arguments = std::env::args_os()
         .skip(1)
         .map(PathBuf::from)
-        .filter(|path| path.is_file());
+        .filter(|path| path.is_file() || path.is_dir());
     pending
         .enqueue(arguments)
-        .expect("could not queue launch documents");
+        .expect("could not queue launch paths");
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(WorkspaceAccess::default())
@@ -234,7 +256,7 @@ fn main() {
             read_document,
             open_linked_document,
             save_document,
-            take_open_documents
+            take_open_requests
         ])
         .build(tauri::generate_context!())
         .expect("could not start Folio")
@@ -243,7 +265,7 @@ fn main() {
             if let tauri::RunEvent::Opened { urls } = event {
                 let paths = urls.into_iter().filter_map(|url| url.to_file_path().ok());
                 if app.state::<PendingOpens>().enqueue(paths).is_ok() {
-                    let _ = app.emit("documents-opened", ());
+                    let _ = app.emit("paths-opened", ());
                 }
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.show();

@@ -27,6 +27,25 @@ The beta is not signed by a trusted publisher or notarized by Apple. macOS may o
 
 Click **Done**, then open **System Settings > Privacy & Security**, scroll to Security, and click **Open Anyway** for Folio. Confirm with **Open**. This applies to the downloaded 0.1.0 beta. See the [macOS installation guide](docs/macos-installation.md) for the full steps and signing setup.
 
+### Open from a terminal
+
+On macOS, install the launcher once from this source checkout:
+
+```sh
+npm run install:cli
+```
+
+It installs `folio` in `~/.local/bin`, which must be on your PATH. The launcher finds Folio in Applications or Downloads and forwards paths to the app, including an already running window.
+
+```sh
+folio ~/notes/                   # Open a folder in the sidebar
+folio ~/notes/ideas.md           # Open a file in a tab
+folio ./one.md ./two.md          # Open multiple files
+folio "./Research Notes/"        # Paths containing spaces
+```
+
+Opening a folder keeps existing document tabs and unsaved changes. The native executable also accepts file and folder paths at startup on Windows/Linux; their command installation depends on how the app is installed.
+
 ## What you can do
 
 | Feature | Details |

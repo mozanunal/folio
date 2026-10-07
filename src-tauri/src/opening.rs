@@ -29,11 +29,19 @@ mod tests {
         let pending = PendingOpens::default();
         pending.enqueue([PathBuf::from("/docs/one.md")]).unwrap();
         pending
-            .enqueue([PathBuf::from("/docs/one.md"), PathBuf::from("/docs/two.md")])
+            .enqueue([
+                PathBuf::from("/docs/one.md"),
+                PathBuf::from("/docs/two.md"),
+                PathBuf::from("/notes"),
+            ])
             .unwrap();
         assert_eq!(
             pending.take().unwrap(),
-            [PathBuf::from("/docs/one.md"), PathBuf::from("/docs/two.md")]
+            [
+                PathBuf::from("/docs/one.md"),
+                PathBuf::from("/docs/two.md"),
+                PathBuf::from("/notes")
+            ]
         );
         assert!(pending.take().unwrap().is_empty());
         pending.enqueue([PathBuf::from("/docs/one.md")]).unwrap();

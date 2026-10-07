@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+
+if [[ "${1:-}" == '--help' || "${1:-}" == '-h' ]]; then
+  printf 'Usage: folio [file-or-folder ...]\nOpen files in tabs or open a folder in the sidebar.\n'
+  exit 0
+fi
+if [[ "${1:-}" == '--' ]]; then shift; fi
+
+app=''
+for candidate in /Applications/Folio.app "$HOME/Applications/Folio.app" "$HOME/Downloads/Folio.app"; do
+  if [[ -d "$candidate" ]]; then app="$candidate"; break; fi
+done
+if [[ -z "$app" ]]; then
+  printf 'Folio.app was not found. Install it in Applications first.\n' >&2
+  exit 1
+fi
+if [[ "$#" -eq 0 ]]; then exec /usr/bin/open -a "$app"; fi
+
+paths=()
+for path in "$@"; do
+  if [[ ! -e "$path" ]]; then
+    printf 'Path does not exist: %s\n' "$path" >&2
+    exit 1
+  fi
+  if [[ "$path" != /* ]]; then path="$PWD/$path"; fi
+  paths+=("$path")
+done
+exec /usr/bin/open -a "$app" "${paths[@]}"

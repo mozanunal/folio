@@ -10,7 +10,8 @@
     "tauri": "node scripts/tauri.mjs",
     "test": "npm run test:core && vitest run",
     "test:core": "node --test src/files.node-test.ts scripts/release-signing.node-test.mjs",
-    "github:metadata": "node scripts/github-metadata.mjs"
+    "github:metadata": "node scripts/github-metadata.mjs",
+    "install:cli": "node scripts/install-cli.mjs"
   },
   "dependencies": {
     "@tiptap/core": "^3.0.0",

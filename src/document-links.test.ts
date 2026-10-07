@@ -18,7 +18,7 @@ it('follows relative links and anchors, keeps read mode, and preserves an existi
   const index = { path: '/docs/index.md', content: '# Development\n\n[Training](guides/Training%20Patterns.md#training-loop)\n\n[Here](#development)\n\n[Missing](missing.md)' }
   const training = { path: '/docs/guides/Training Patterns.md', content: '# Training loop\n\n[Home](../index.md#development)' }
   native.invoke.mockImplementation(async (command: string, arguments_: { relativePath?: string }) => {
-    if (command === 'take_open_documents') return [{ Ok: index }]
+    if (command === 'take_open_requests') return [{ Ok: index }]
     if (command === 'open_linked_document') {
       if (arguments_.relativePath === 'guides/Training Patterns.md') return training
       if (arguments_.relativePath === '../index.md') return index
