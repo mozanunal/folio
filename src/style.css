@@ -73,3 +73,5 @@
 .sidebar-resize{position:absolute;right:-1px;top:0;bottom:0;width:7px;z-index:3;cursor:col-resize;touch-action:none}
 .sidebar-resize:hover,.sidebar-resize:focus-visible,.resizing-sidebar .sidebar-resize{background:var(--accent);opacity:.65}
 .resizing-sidebar,.resizing-sidebar *{cursor:col-resize!important;user-select:none!important}
+
+.diagram-preview{--pele-bg:var(--paper);--pele-fg:var(--ink);--pele-muted:var(--muted);--pele-line:var(--muted);--pele-surface:var(--surface);--pele-surface-alt:var(--accent-soft);--pele-border:var(--line);--pele-accent:var(--accent);--pele-font:sans-serif;--pele-series-1:var(--accent);--pele-series-2:var(--muted)}

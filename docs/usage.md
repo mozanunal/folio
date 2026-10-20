@@ -67,3 +67,11 @@ folio "./Research Notes/"        # Paths containing spaces
 
 Opening a folder keeps existing document tabs and unsaved changes. The native executable also accepts file and folder paths at startup on Windows/Linux; their command installation depends on how the app is installed.
 
+
+## Mermaid rendering
+
+Folio renders fenced `mermaid` blocks with [Pele](https://github.com/obsidianmd/pele). Existing diagram source stays unchanged when you edit, save or switch modes. Diagram types load on demand, and SVG colors follow Folio's light/dark mode and color scheme without re-rendering.
+
+Pele has its own layout and visual style. Mermaid `theme` and `themeVariables` colors do not apply, arbitrary HTML labels are not supported, and external Mermaid plugins are not included. Folio disables links and embedded images inside diagrams. Ordinary Markdown links and images continue to work separately.
+
+Pele's default limits apply: 50,000 source characters, 4,000,000 SVG characters and 5,000 flowchart edges. Rendering failures appear as text while the original source remains editable. See [Pele compatibility](https://pele.run/compatibility) for syntax differences.

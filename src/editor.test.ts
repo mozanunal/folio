@@ -4,11 +4,10 @@ import { createEditor } from './editor'
 import type { Editor } from '@tiptap/core'
 
 let editor: Editor | undefined
-const mermaid = vi.hoisted(() => ({
-  initialize: vi.fn(),
-  render: vi.fn(async (_id: string, source: string) => ({ svg: `<svg><text>${source}</text></svg>` })),
+const pele = vi.hoisted(() => ({
+  renderAsync: vi.fn(async (source: string) => ({ svg: `<svg><text>${source}</text></svg>` })),
 }))
-vi.mock('mermaid', () => ({ default: mermaid }))
+vi.mock('pele/lazy', () => pele)
 beforeAll(() => {
   vi.stubGlobal('IntersectionObserver', class {
     constructor(private callback: IntersectionObserverCallback) {}
@@ -21,6 +20,7 @@ afterEach(() => {
   editor?.destroy()
   document.body.replaceChildren()
   document.documentElement.classList.remove('dark')
+  delete document.documentElement.dataset.theme
   vi.useRealTimers()
   vi.clearAllMocks()
 })
@@ -154,26 +154,36 @@ describe('Markdown documents', () => {
     expect(doc.getJSON().content?.[0].content?.[0].text).toBe('$$A/B$$')
   })
 
-  it('refreshes Mermaid previews on theme changes and reuses the matching cached render', async () => {
+  it('keeps Mermaid source and reuses the preview across mode and palette changes', async () => {
     vi.useFakeTimers()
     const doc = load('```mermaid\nflowchart LR\n Light --> Dark\n```')
     const original = doc.getMarkdown()
     await vi.advanceTimersByTimeAsync(250)
     await vi.dynamicImportSettled()
-    expect(mermaid.initialize).toHaveBeenLastCalledWith(expect.objectContaining({ theme: 'neutral' }))
-    expect(document.querySelector('.diagram-preview svg')).not.toBeNull()
-
+    const preview = document.querySelector('.diagram-preview svg')
+    expect(preview).not.toBeNull()
+    expect(pele.renderAsync).toHaveBeenCalledWith(expect.stringContaining('flowchart LR'), expect.objectContaining({ links: false, images: false }))
     document.documentElement.classList.add('dark')
-    await Promise.resolve()
+    document.documentElement.dataset.theme = 'ocean'
     await vi.advanceTimersByTimeAsync(250)
-    expect(mermaid.initialize).toHaveBeenLastCalledWith(expect.objectContaining({ theme: 'dark' }))
-    expect(mermaid.render).toHaveBeenCalledTimes(2)
-
     document.documentElement.classList.remove('dark')
-    await Promise.resolve()
     await vi.advanceTimersByTimeAsync(250)
-    expect(mermaid.render).toHaveBeenCalledTimes(2)
+    expect(pele.renderAsync).toHaveBeenCalledTimes(1)
+    expect(document.querySelector('.diagram-preview svg')).toBe(preview)
     expect(doc.getMarkdown()).toBe(original)
+  })
+
+  it('shows rendering errors as text and can recover after editing the diagram', async () => {
+    vi.useFakeTimers()
+    pele.renderAsync.mockRejectedValueOnce(new Error('<script>invalid</script>'))
+    const doc = load('```mermaid\ninvalid diagram\n```')
+    await vi.advanceTimersByTimeAsync(250)
+    await vi.dynamicImportSettled()
+    expect(document.querySelector('.diagram-preview')?.textContent).toContain('<script>invalid</script>')
+    expect(document.querySelector('.diagram-preview script')).toBeNull()
+    doc.commands.setContent('```mermaid\nflowchart LR\n Recovered --> Diagram\n```', { contentType: 'markdown' })
+    await vi.advanceTimersByTimeAsync(250)
+    expect(document.querySelector('.diagram-preview svg')).not.toBeNull()
   })
 
   it('shows Mermaid as a diagram and exposes its source only while editing', () => {

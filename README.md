@@ -21,7 +21,7 @@ Folio brings that combination together, with tabs, a read-only mode and links be
 - **Files and folders**, relative Markdown links and local saving.
 - **Six color schemes**, independent light/dark modes, zoom and a resizable sidebar.
 
-Math and diagrams render offline. Your documents stay ordinary `.md` files.
+Math and diagrams render offline. Mermaid syntax is rendered by [Pele](https://github.com/obsidianmd/pele). Your documents stay ordinary `.md` files.
 
 ## Install
 

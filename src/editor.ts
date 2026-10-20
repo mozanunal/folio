@@ -47,23 +47,21 @@ const MarkdownInlineMath = InlineMath.extend({
 const diagramCache = new Map<string, string>()
 let diagramSerial = 0
 let diagramQueue = Promise.resolve()
-let mermaidModule: Promise<typeof import('mermaid')> | undefined
+let peleModule: Promise<typeof import('pele/lazy')> | undefined
 
-async function drawDiagram(source: string): Promise<string> {
-  const dark = document.documentElement.classList.contains('dark')
-  const cacheKey = `${dark ? 'dark' : 'light'}\n${source}`
+async function drawDiagram(source: string, idPrefix: string): Promise<string> {
+  const cacheKey = `${idPrefix}\n${source}`
   const cached = diagramCache.get(cacheKey)
   if (cached) return cached
-  mermaidModule ??= import('mermaid')
-  const { default: mermaid } = await mermaidModule
-  mermaid.initialize({
-    startOnLoad: false,
-    securityLevel: 'strict',
-    theme: dark ? 'dark' : 'neutral',
-    themeVariables: { darkMode: dark },
-    suppressErrorRendering: true,
+  peleModule ??= import('pele/lazy')
+  const { renderAsync } = await peleModule
+  const { svg } = await renderAsync(source, {
+    idPrefix,
+    autoDirection: false,
+    links: false,
+    images: false,
+    fontFamily: 'sans-serif',
   })
-  const { svg } = await mermaid.render(`folio-diagram-${++diagramSerial}`, source)
   if (diagramCache.size >= 64) diagramCache.delete(diagramCache.keys().next().value!)
   diagramCache.set(cacheKey, svg)
   return svg
@@ -76,16 +74,6 @@ export interface EditorOptions {
 }
 
 export function createEditor(element: HTMLElement, content: string, options: EditorOptions): Editor {
-  const diagramRenderers = new Set<() => void>()
-  let dark = document.documentElement.classList.contains('dark')
-  const themeObserver = new MutationObserver(() => {
-    const nextDark = document.documentElement.classList.contains('dark')
-    if (nextDark === dark) return
-    dark = nextDark
-    for (const render of diagramRenderers) render()
-  })
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-
   const LocalImage = Image.extend({
     addNodeView() {
       return ({ node }) => {
@@ -108,6 +96,7 @@ export function createEditor(element: HTMLElement, content: string, options: Edi
   const DiagramCode = CodeBlockLowlight.extend({
     addNodeView() {
       return ({ node: initialNode, editor, getPos }) => {
+        const diagramId = `folio-diagram-${++diagramSerial}`
         let node = initialNode
         let disposed = false
         let visible = false
@@ -198,7 +187,7 @@ export function createEditor(element: HTMLElement, content: string, options: Edi
             diagramQueue = diagramQueue.then(async () => {
               if (disposed || version !== generation) return
               try {
-                const svg = await drawDiagram(source)
+                const svg = await drawDiagram(source, diagramId)
                 if (!disposed && version === generation) preview.innerHTML = svg
               } catch (error) {
                 if (!disposed && version === generation) preview.textContent = `Diagram error: ${String(error)}`
@@ -206,7 +195,6 @@ export function createEditor(element: HTMLElement, content: string, options: Edi
             })
           }, 250)
         }
-        diagramRenderers.add(render)
         const observer = new IntersectionObserver(entries => {
           visible = entries.some(entry => entry.isIntersecting)
           if (visible) render()
@@ -231,7 +219,7 @@ export function createEditor(element: HTMLElement, content: string, options: Edi
           },
           stopEvent: event => controls.contains(event.target as globalThis.Node),
           ignoreMutation: mutation => mutation.type !== 'selection' && !code.contains(mutation.target),
-          destroy() { disposed = true; clearTimeout(timer); clearTimeout(copyTimer); observer.disconnect(); diagramRenderers.delete(render) },
+          destroy() { disposed = true; clearTimeout(timer); clearTimeout(copyTimer); observer.disconnect() },
         }
       }
     },
@@ -261,7 +249,6 @@ export function createEditor(element: HTMLElement, content: string, options: Edi
     contentType: 'markdown',
     editorProps: { attributes: { 'aria-label': 'Markdown document', spellcheck: 'true' } },
     onUpdate: options.changed,
-    onDestroy: () => themeObserver.disconnect(),
   })
   return thisEditor
 }
