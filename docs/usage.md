@@ -75,3 +75,14 @@ Folio renders fenced `mermaid` blocks with [Pele](https://github.com/obsidianmd/
 Pele has its own layout and visual style. Mermaid `theme` and `themeVariables` colors do not apply, arbitrary HTML labels are not supported, and external Mermaid plugins are not included. Folio disables links and embedded images inside diagrams. Ordinary Markdown links and images continue to work separately.
 
 Pele's default limits apply: 50,000 source characters, 4,000,000 SVG characters and 5,000 flowchart edges. Rendering failures appear as text while the original source remains editable. See [Pele compatibility](https://pele.run/compatibility) for syntax differences.
+
+## Upgrading Folio
+
+Folio currently has no automatic update checks or in-app updater. Existing installations keep running their installed version until you replace it manually. Save your documents and quit Folio before upgrading.
+
+- macOS: extract the new ZIP, drag Folio.app to Applications and choose Replace.
+- Windows: run the new setup installer using the same installation location.
+- Linux AppImage: replace the old AppImage with the new one and make it executable.
+- Debian/Ubuntu: install the new `.deb` with `sudo apt install ./Folio_<version>_linux-x64.deb`.
+
+Updating the application does not move or replace your Markdown files. Open tabs are not restored after quitting. Keep the normal backups you use for your documents.

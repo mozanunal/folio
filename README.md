@@ -4,7 +4,7 @@
 
 A focused WYSIWYG Markdown editor for local files. Write visually, inspect the source, or settle in to read.
 
-[Download the beta](https://github.com/mozanunal/folio/releases) · [Release notes](releases/0.1.1.md) · [Report an issue](https://github.com/mozanunal/folio/issues)
+[Download the beta](https://github.com/mozanunal/folio/releases) · [Release notes](releases/0.1.2.md) · [Report an issue](https://github.com/mozanunal/folio/issues)
 
 ## Why another Markdown editor?
 
@@ -25,7 +25,7 @@ Math and diagrams render offline. Mermaid syntax is rendered by [Pele](https://g
 
 ## Install
 
-Download **Folio 0.1.1 Beta** from [GitHub Releases](https://github.com/mozanunal/folio/releases/tag/v0.1.1).
+Download **Folio 0.1.2 Beta** from [GitHub Releases](https://github.com/mozanunal/folio/releases/tag/v0.1.2).
 
 | Platform | Package |
 | --- | --- |
@@ -34,6 +34,8 @@ Download **Folio 0.1.1 Beta** from [GitHub Releases](https://github.com/mozanuna
 | Linux Intel/AMD x64 | AppImage or Debian/Ubuntu `.deb` |
 
 The beta is not signed by a trusted publisher. See the [macOS first-launch instructions](docs/macos-installation.md); Windows may show SmartScreen. Windows setup may need internet to install WebView2. Release notes include Linux installation details and download checksums.
+
+Existing installs do not update automatically. Save your documents and quit Folio, then install the new download over the previous version. See [upgrading](docs/usage.md#upgrading-folio) for platform steps.
 
 ## Get started
 
